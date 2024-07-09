@@ -21,12 +21,20 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+        cache-dependency-path: '**/package-lock.json'
+    - name: Install dependencies
+      run: npm ci
+      working-directory: ./react-frontend
+    - name: Build
+      run: npm run build --if-present
+      working-directory: ./react-frontend
+    - name: Test
+      run: npm test
+      working-directory: ./react-frontend
     - name: Deploy with gh-pages
       run: |
         git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
         npm run deploy -- -u "github-actions-bot <support+actions@github.com>"
+      working-directory: ./react-frontend
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
