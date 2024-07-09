@@ -12,37 +12,55 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: List repository contents
-      run: ls -R
-    
+    - name: Print working directory
+      run: pwd
+
+    - name: List root directory contents
+      run: ls -la
+
+    - name: List all contents recursively
+      run: find .
+
     - name: Use Node.js 20.x
       uses: actions/setup-node@v3
       with:
         node-version: 20.x
 
-    - name: Change to react-frontend directory
-      run: cd react-frontend
-    
-    - name: List react-frontend contents
-      run: ls -la
-      working-directory: ./react-frontend
+    - name: Locate package.json
+      run: find . -name package.json
+
+    - name: Locate package-lock.json
+      run: find . -name package-lock.json
 
     - name: Install dependencies
-      run: npm ci
-      working-directory: ./react-frontend
+      run: |
+        if [ -f "./package-lock.json" ]; then
+          npm ci
+        elif [ -f "./react-frontend/package-lock.json" ]; then
+          cd react-frontend && npm ci
+        else
+          echo "Cannot find package-lock.json"
+          exit 1
+        fi
 
     - name: Build
-      run: npm run build --if-present
-      working-directory: ./react-frontend
+      run: |
+        if [ -f "./package.json" ]; then
+          npm run build --if-present
+        elif [ -f "./react-frontend/package.json" ]; then
+          cd react-frontend && npm run build --if-present
+        else
+          echo "Cannot find package.json"
+          exit 1
+        fi
 
     - name: Test
-      run: npm test
-      working-directory: ./react-frontend
-
-    - name: Deploy with gh-pages
       run: |
-        git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-        npm run deploy -- -u "github-actions-bot <support+actions@github.com>"
-      working-directory: ./react-frontend
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if [ -f "./package.json" ]; then
+          npm test
+        elif [ -f "./react-frontend/package.json" ]; then
+          cd react-frontend && npm test
+        else
+          echo "Cannot find package.json"
+          exit 1
+        fi
