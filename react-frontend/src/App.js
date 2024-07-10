@@ -2,15 +2,14 @@
 import "./App.css"
 // const greetMess = "Hello World! ";
 
-import Header from "./components/header";
+import Home from "./components/home";
 import Footer from "./components/Footer";
-import Hero from "./components/Hero";
+
 
 function App() {
   return (
     <div>
-      <Header />
-      <Hero />
+      <Home />
       <Footer />
 
     </div>

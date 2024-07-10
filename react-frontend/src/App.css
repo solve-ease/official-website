@@ -4,38 +4,94 @@
 
 }
 
-
 :root {
-  --primary-color: #a347ff;
+  --primary-color: #2457c5;
   --font-family: 'Arial', sans-serif;
   --base-font-size: 1.1rem;
-  --secondary-color:#fff;
+  --secondary-color:#00bfb3;
+  --font-primary: "Ubuntu", sans-serif;
+  --font-secondary: sans-serif;
+  --color-primary-light: rgba(36, 87, 197, 0.3);
+  --dark-primary: #34495e;
+  --black: #171321;
+  --white: #fff;
+  --blue: #5d12d2;
+  --peach: #ffe5e5;
+  --font-size: 1.3rem;
+  --deep-saffron: #ff9933;
+  --pink: #ff6ac2;
+  --deep-pink: #a852a3;
+  --mono: Montserrat, monospace;
+  --sans: Poppins, sans-serif;
+  --white: #fff;
+  --text-color: #343741;
+  --background-color: #f5f7fa;
+  --font-head: Montserrat, monopsace;
+  --font-ex-small: 0.4rem;
+  --font-small: 0.75rem;
+  --font-mid-medium: 1.5rem;
+  --font-medium: 2rem;
+  --font-mid-large: 2.5rem;
+  --font-large: 3rem;
+  --font-ex-large: 3.5rem;
 
 }
 
 
-.welcome{
-  font-family: sans-serif;
-  font-size: 2rem;
+
+/* utilty css props/ */
+
+.flex{
+  display: flex;
+}
+
+.flex-center{
+  /* display: flex; */
+  justify-content: center;
+
+}
+
+.text-decor-none{
+  text-decoration: none;
+}
+
+.text-center{
   text-align: center;
-  margin-top: 2rem;
-  
+}
+
+.flex-column{
+  display: flex;
+  flex-direction: column;
 
 }
+
+/* header css */
+
 
 .header{
-  display: flex;
+  padding: 14px;
+}
+
+.head-sub{
   justify-content: space-between;
   align-items: center;
   height: 1rem;
-  padding: 2rem;
-  background-color: var(--primary-color);
-  color: var(--secondary-color);
+  padding: 1.7rem;
+  background-color: var(--white);
+  width: 80%;
+  border-radius: 50px;
   
 }
 
-.logo{
-  font-size: 24px;
+.logo-div{
+  display: inherit;
+  gap: 0.7rem;
+}
+
+.logo-text{
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--black);
 
 }
 
@@ -48,21 +104,25 @@
 
 #navbar ul li a{
   text-decoration: none;
-  color: var(--secondary-color);
+  color: var(--black);
   font-size: var(--base-font-size);
 
 
 }
 
 #navbar ul li a:hover{
-  border-bottom: 2px solid var(--secondary-color);
+  border-bottom: 2px solid var(--primary-color);
   scale: 1.1;
+  color: var(--primary-color);
 }
+
+
+
 
 .footer{
   height: 1rem;
   background-color: var(--primary-color);
-  color: var(--secondary-color);
+  color: var(--white);
   padding: 2rem;
 
 
