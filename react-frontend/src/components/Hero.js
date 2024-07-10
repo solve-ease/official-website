@@ -1,10 +1,10 @@
 import React from "react";
-import imageUrl from "../assets/images/hero-img.jpg"
+// import imageUrl from "../assets/images/hero-img.jpg"
 function Hero() {
     return (
 
         <section className="hero">
-            <img style={{width: '100%'}} src={imageUrl} alt="hero image" />
+            {/* <img style={{width: '100%'}} src={imageUrl} alt="hero image" /> */}
             <div className="hero-content">
                 <h2>Welcome to Our E-commerce Platform</h2>
                 <p>
