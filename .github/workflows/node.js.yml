@@ -21,10 +21,13 @@ jobs:
     - name: List all contents recursively
       run: find .
 
-    - name: Use Node.js 20.x
+    - name: Use Node.js 18.x
       uses: actions/setup-node@v3
       with:
         node-version: 18.x
+
+    - name: Set Node.js options to bypass OpenSSL issue
+      run: echo "NODE_OPTIONS=--openssl-legacy-provider" >> $GITHUB_ENV
 
     - name: Locate package.json
       run: find . -name package.json
