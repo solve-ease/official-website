@@ -166,9 +166,9 @@ const Contact = () => {
                   <div className="ml-4">
                     <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Visit Us</h4>
                     <p className="text-gray-600 dark:text-gray-300">
-                      123 Innovation Drive<br />
-                      San Francisco, CA 94107<br />
-                      United States
+                      Keshav Mahavidyalaya<br />
+                      Pitampura, New Delhi<br />
+                      India
                     </p>
                   </div>
                 </div>
@@ -180,7 +180,7 @@ const Contact = () => {
                   <div className="ml-4">
                     <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Call Us</h4>
                     <p className="text-gray-600 dark:text-gray-300">
-                      +1 (555) 123-4567
+                      +91 72751-56652
                     </p>
                     <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                       Monday-Friday: 9:00 AM - 6:00 PM
@@ -196,12 +196,12 @@ const Contact = () => {
                     <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Email Us</h4>
                     <p className="text-gray-600 dark:text-gray-300">
                       <a href="mailto:info@solve-ease.com" className="hover:text-indigo-600 dark:hover:text-indigo-400">
-                        info@solve-ease.com
+                        solveeaseofficial@gmai.com
                       </a>
                     </p>
                     <p className="text-gray-600 dark:text-gray-300 mt-1">
                       <a href="mailto:support@solve-ease.com" className="hover:text-indigo-600 dark:hover:text-indigo-400">
-                        support@solve-ease.com
+                        vkadarsh.maurya@gmail.com
                       </a>
                     </p>
                   </div>
