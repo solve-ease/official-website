@@ -5,6 +5,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import current_app
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
 def send_confirmation_email(recipient_email, recipient_name):
     """
     Send a confirmation email to the contact form submitter.

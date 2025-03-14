@@ -2,6 +2,10 @@
 import os
 from datetime import timedelta
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
 class Config:
     """Base configuration class with common settings."""
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')

@@ -5,6 +5,7 @@ from models.contact import Contact
 from extensions import db, supabase_client
 from . import api_bp
 from services.email_service import send_confirmation_email
+from services.email_service import send_admin_notification
 
 @api_bp.route('/contact', methods=['POST'])
 def submit_contact_form():
@@ -12,6 +13,7 @@ def submit_contact_form():
     try:
         # Get form data from request
         data = request.get_json()
+        # print(data)  # debug step
         
         # Validate required fields
         required_fields = ['name', 'email', 'subject', 'message']
@@ -34,6 +36,12 @@ def submit_contact_form():
         # Send confirmation email (async task)
         try:
             send_confirmation_email(data['email'], data['name'])
+        except Exception as e:
+            current_app.logger.error(f"Error sending confirmation email: {str(e)}")
+
+        # Send Admin email (async task)
+        try:
+            send_admin_notification(data)
         except Exception as e:
             current_app.logger.error(f"Error sending confirmation email: {str(e)}")
         
