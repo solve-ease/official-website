@@ -1,6 +1,67 @@
+// import React, { useState } from 'react';
+// import { motion } from 'framer-motion';
+// import { Send, MapPin, Phone, Mail, Github, Linkedin, Twitter } from 'lucide-react';
+
+// const Contact = () => {
+//   const [formData, setFormData] = useState({
+//     name: '',
+//     email: '',
+//     subject: '',
+//     message: ''
+//   });
+//   const [submitted, setSubmitted] = useState(false);
+
+//   const handleChange = (e) => {
+//     setFormData({
+//       ...formData,
+//       [e.target.name]: e.target.value
+//     });
+//   };
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     // Simulate form submission
+//     setTimeout(() => {
+//       setSubmitted(true);
+//       setFormData({
+//         name: '',
+//         email: '',
+//         subject: '',
+//         message: ''
+//       });
+//       // Reset the submitted state after a few seconds
+//       setTimeout(() => {
+//         setSubmitted(false);
+//       }, 5000);
+//     }, 1000);
+//   };
+
+//   return (
+//     <section id="contact" className="py-16 bg-gray-50 dark:bg-gray-900">
+//       <div className="container mx-auto px-4">
+//         <motion.div 
+//           className="text-center mb-16"
+//           initial={{ opacity: 0, y: 20 }}
+//           whileInView={{ opacity: 1, y: 0 }}
+//           viewport={{ once: true }}
+//           transition={{ duration: 0.6 }}
+//         >
+//           <span className="inline-block py-1 px-3 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 text-sm font-medium mb-4">
+//             Contact Us
+//           </span>
+//           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+//             Let's Solve Your Challenges Together
+//           </h2>
+//           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+//             Have a project in mind or just want to learn more about our services? Get in touch and let's start a conversation.
+//           </p>
+//         </motion.div>
+
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, MapPin, Phone, Mail, Github, Linkedin, Twitter } from 'lucide-react';
+import axios from 'axios'; // Make sure to install axios: npm install axios
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -10,30 +71,73 @@ const Contact = () => {
     message: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // Get the API URL from environment variable or use default
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear any previous error when user starts typing again
+    if (error) setError(null);
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    // Simple validation for required fields
+    if (!formData.name.trim()) return 'Name is required';
+    if (!formData.email.trim()) return 'Email is required';
+    if (!/^\S+@\S+\.\S+$/.test(formData.email)) return 'Please enter a valid email address';
+    if (!formData.subject.trim()) return 'Subject is required';
+    if (!formData.message.trim()) return 'Message is required';
+    return null;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate form submission
-    setTimeout(() => {
-      setSubmitted(true);
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-      // Reset the submitted state after a few seconds
-      setTimeout(() => {
-        setSubmitted(false);
-      }, 5000);
-    }, 1000);
+    
+    // Validate form
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Send data to the backend API
+      const response = await axios.post(`${API_URL}/contact`, formData);
+      
+      if (response.data.success) {
+        setSubmitted(true);
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+        
+        // Reset success message after 5 seconds
+        setTimeout(() => {
+          setSubmitted(false);
+        }, 5000);
+      } else {
+        setError(response.data.error || 'Something went wrong. Please try again later.');
+      }
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      setError(
+        err.response?.data?.error || 
+        'Unable to submit your message. Please try again later.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,7 +160,6 @@ const Contact = () => {
             Have a project in mind or just want to learn more about our services? Get in touch and let's start a conversation.
           </p>
         </motion.div>
-
         <div className="flex flex-col lg:flex-row gap-12">
           <motion.div 
             className="lg:w-1/2"
