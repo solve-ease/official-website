@@ -1,0 +1,10 @@
+myenv/
+.env
+.myenv/
+**/.pyc
+**/__pycache__/
+**/migrations/
+**/staticfiles/
+**/media/
+**/node_modules/
+**/bower_components/
