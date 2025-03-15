@@ -1,0 +1,32 @@
+# Robots.txt file for Solve-Ease
+# https://solve-ease.vercel.app/
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /includes/
+Disallow: /cgi-bin/
+Disallow: /tmp/
+
+# Allow Google to index everything
+User-agent: Googlebot
+Allow: /
+
+# Allow Bing to index everything
+User-agent: Bingbot
+Allow: /
+
+# Allow DuckDuckGo to index everything
+User-agent: DuckDuckBot
+Allow: /
+
+# Slow down image bots to reduce server load
+User-agent: Googlebot-Image
+Crawl-delay: 2
+
+# Define sitemap location
+Sitemap: https://solve-ease.vercel.app/sitemap.xml
+
