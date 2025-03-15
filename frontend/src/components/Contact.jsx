@@ -298,12 +298,12 @@ const Contact = () => {
                   <div className="ml-4">
                     <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Email Us</h4>
                     <p className="text-gray-600 dark:text-gray-300">
-                      <a href="mailto:info@solve-ease.com" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                      <a href="mailto:solveeaseofficial@gmai.com" className="hover:text-indigo-600 dark:hover:text-indigo-400">
                         solveeaseofficial@gmai.com
                       </a>
                     </p>
                     <p className="text-gray-600 dark:text-gray-300 mt-1">
-                      <a href="mailto:support@solve-ease.com" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                      <a href="mailto:vkadarsh.maurya@gmail.com" className="hover:text-indigo-600 dark:hover:text-indigo-400">
                         vkadarsh.maurya@gmail.com
                       </a>
                     </p>

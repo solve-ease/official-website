@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Linkedin, Github, Twitter, Mail } from 'lucide-react';
 
+import AnmolImg from "../assets/am-goel.jpg"
 const Team = () => {
   const team = [
     {
@@ -17,30 +18,31 @@ const Team = () => {
       }
     },
 
+    
     {
       id: 2,
-      name: "Adarsh Maurya",
-      role: "Entrepreneur and Tech Expert",
-      bio: "An Entrepreneur, buildling solutions for world's pressing problems using latest tools and technology like Gen AI, Blockchain, etc",
-      image: "https://auto-doc-seven.vercel.app/am-pic.png",
-      expertise: ["Web & App Dev", "Gen AI & LLMs", "Blockchain"],
-      social: {
-        linkedin: "https://www.linkedin.com/in/adarsh-maurya-dev",
-        github: "https://github.com/4darsh-Dev"
-      }
-    },
-    {
-      id: 3,
       name: "Anmol Goel",
       role: "Robotics and ML Expert",
       bio: "Love Building smart machines",
-      image: "/images/team/anmol.jpg",
+      image: AnmolImg,
       expertise: ["Deep Learning", "Machine Learning", "ROS", "IOT"],
       social: {
         linkedin: "https://www.linkedin.com/in/anmolgoel29/",
         github: "https://github.com/mrgoel2975"
       }
     },
+{
+  id: 3,
+  name: "Adarsh Maurya",
+  role: "Entrepreneur and Tech Expert",
+  bio: "An Entrepreneur, buildling solutions for world's pressing problems using latest tools and technology like Gen AI, Blockchain, etc",
+  image: "https://auto-doc-seven.vercel.app/am-pic.png",
+  expertise: ["Web & App Dev", "Gen AI & LLMs", "Blockchain"],
+  social: {
+    linkedin: "https://www.linkedin.com/in/adarsh-maurya-dev",
+    github: "https://github.com/4darsh-Dev"
+  }
+},
     // {
     //   id: 4,
     //   name: "Priya Patel",

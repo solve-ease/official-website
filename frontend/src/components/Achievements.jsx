@@ -2,39 +2,47 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, ExternalLink } from 'lucide-react';
 
+
+import IIMAwinner from '../assets/iima-win.png';
+import IITDwinner from '../assets/iitd-win-min.webp';
+import IITKGPwinner from '../assets/iitkgp-win-min.webp';
+import HackCBSwinner from '../assets/hackcbs7-win.webp';
+
+
+
 const Achievements = () => {
   const achievements = [
     {
       id: 1,
-      title: "AWS Hackathon Winner",
-      description: "First place in the AWS Innovation Challenge with our serverless architecture solution.",
-      image: "/images/achievements/aws-hackathon.jpg",
-      date: "November 2023",
-      linkedinPost: "https://www.linkedin.com/company/solve-ease/posts/?feedView=all"
+      title: "IIT Delhi Tryst 2025 Hackathon Winner",
+      description: "First place in the Cube of Innovation Challenge with our EduGamix Solution. Gamified & Personalized Learning Platform.",
+      image: IITDwinner,
+      date: "March 2025",
+      linkedinPost: "https://www.linkedin.com/posts/adarsh-maurya-dev_tyst2025-hackathon-iitdelhi-activity-7305931689740972033-HuFZ?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEB-Bu8BLOQ9ncnOMyj8Rl2Pch96aQVjkmA"
     },
     {
       id: 2,
-      title: "Google Solution Challenge Finalist",
-      description: "Selected as one of the top 10 global finalists for our sustainability-focused mobile application.",
-      image: "/images/achievements/google-challenge.jpg",
-      date: "March 2024",
-      linkedinPost: "https://www.linkedin.com/company/solve-ease/posts/?feedView=all"
+      title: "2nd Runner-Up in Empower Hackathon at IIMA",
+      description: "Secured third place with our Drone and ML powered solution for automated orchard management.",
+      image: IIMAwinner,
+      date: "March 2025",
+      linkedinPost: "https://www.linkedin.com/posts/adarsh-maurya-dev_hackathon-socialimpact-techforgood-activity-7304724082011291648-BrAY?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEB-Bu8BLOQ9ncnOMyj8Rl2Pch96aQVjkmA"
     },
     {
       id: 3,
-      title: "AI Innovation Award",
-      description: "Recognized for our groundbreaking AI chatbot solution at the International Tech Summit.",
-      image: "/images/achievements/ai-award.jpg",
-      date: "May 2024",
-      linkedinPost: "https://www.linkedin.com/company/solve-ease/posts/?feedView=all"
+      title: "East India Blockchain Summit Hackathon Winner at IIT Kharagpur",
+      description: "Awarded for our AutoDoc Project that uses Blockchain and ZkProofs for secure document verification.",
+      image: IITKGPwinner,
+      date: "Feb 2025",
+      linkedinPost: "https://www.linkedin.com/posts/adarsh-maurya-dev_kshitiz2025-eastindiablockchainsummit2025-activity-7287449553354604544-iMiA?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEB-Bu8BLOQ9ncnOMyj8Rl2Pch96aQVjkmA"
     },
     {
       id: 4,
-      title: "Best Health Tech Solution",
-      description: "Won the HealthTech Innovators competition with our patient monitoring platform.",
-      image: "/images/achievements/health-tech.jpg",
-      date: "August 2024",
-      linkedinPost: "https://www.linkedin.com/company/solve-ease/posts/?feedView=all"
+      title: "1st Runner up at HackCBS7.0 by Major League Hacking",
+      description: "Secured second place with our OrchardEyes solution that uses drones and AI for orchard monitoring.",
+      image: HackCBSwinner,
+      date: "Nov 2024",
+      linkedinPost: "https://www.linkedin.com/posts/adarsh-maurya-dev_hackathons-hackcbs-hackathonwin-activity-7261680424026808320-a7L5?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEB-Bu8BLOQ9ncnOMyj8Rl2Pch96aQVjkmA"
     }
   ];
 

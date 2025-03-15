@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Github, Link } from 'lucide-react';
 
+import EdugamixImg  from '../assets/edugamix-project.webp';
+import OrchardEyesImg from '../assets/orchardeyes-project.webp';
+import SeedSocietyImg from '../assets/seed-society-project.webp';
+import AutoDocImg from '../assets/autodoc-project.webp';
+
+
 const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
 
@@ -15,63 +21,64 @@ const Projects = () => {
   const projects = [
     {
       id: 1,
-      title: "AI-Powered Learning Platform",
-      description: "An intelligent platform that personalizes learning paths based on student performance and learning style.",
-      image: "/images/projects/learning-platform.jpg",
+      title: "EduGamix: AI-Powered Learning Platform",
+      description: "An intelligent platform that personalizes learning paths based on student performance and learning style with 3D AI Avatar Interviews.",
+      image: EdugamixImg,
       category: ["web", "ai"],
-      demoLink: "https://demo.solve-ease.com/learning-platform",
-      githubLink: "https://github.com/solve-ease/learning-platform",
-      technologies: ["React", "Node.js", "TensorFlow", "MongoDB"]
+      demoLink: "https://edu-gamix.vercel.app/",
+      githubLink: "https://github.com/solve-ease/EduGamix",
+      technologies: ["React", "Express.js", "TensorFlow", "Supabase", "Threejs"]
     },
     {
       id: 2,
-      title: "Health Monitoring Mobile App",
-      description: "A comprehensive health tracking app that monitors vital signs and provides personalized health insights.",
-      image: "/images/projects/health-app.jpg",
-      category: ["mobile"],
-      demoLink: "https://demo.solve-ease.com/health-app",
-      githubLink: "https://github.com/solve-ease/health-monitor",
-      technologies: ["React Native", "Firebase", "HealthKit", "Google Fit"]
+      title: "OrchardEyes: Apple Orchard Management",
+      description: "An end to end Automated Apple Orchard Management system using Ai, blockchain and UAV autonomus drones. ",
+      image: OrchardEyesImg,
+      category: ["web"],
+      demoLink: "https://orchard-eyes-new.vercel.app/",
+      githubLink: "https://github.com/solve-ease/supply-chain",
+      technologies: ["React", "Express.js", "Solidity", "PostgreSQL", "Ethereum", "OpenCV", "Raspberry Pi", "ROS", "YOLOv8"]
     },
     {
       id: 3,
-      title: "Smart Customer Support Chatbot",
-      description: "An AI-powered chatbot that handles customer inquiries and learns from interactions to improve over time.",
-      image: "/images/projects/support-chatbot.jpg",
-      category: ["ai", "web"],
-      demoLink: "https://demo.solve-ease.com/support-chatbot",
-      githubLink: "https://github.com/solve-ease/support-chatbot",
-      technologies: ["Python", "NLP", "DialogFlow", "MongoDB"]
+      title: "SeedSociety: Android App + Web",
+      description: "A community platform providing smart tracking of tree plantation and their health using AI and blockchain technology.",
+      image: SeedSocietyImg,
+      category: ["mobile", "web", "ai"],
+      demoLink: "https://seed-society.vercel.app/",
+      githubLink: "https://github.com/solve-ease/SeedSociety",
+      technologies: ["React Native", "Supabase", "OpenCV", "Solidity", "Ethereum"]
     },
     {
       id: 4,
-      title: "E-commerce Recommendation Engine",
-      description: "A sophisticated recommendation system that suggests products based on user behavior and preferences.",
-      image: "/images/projects/recommendation-engine.jpg",
-      category: ["ai", "web"],
-      demoLink: "https://demo.solve-ease.com/recommendation-engine",
-      githubLink: "https://github.com/solve-ease/recommendation-engine",
-      technologies: ["Python", "TensorFlow", "Flask", "PostgreSQL"]
+      title: "AutoDoc: Document Verification System",
+      description: "An Automated Official Doc Managemnt system using AI and Blockchain with secure storage via IPFS. User profiles include Issuing Authorities, Verifiying authorities and Individuals. ",
+      image: AutoDocImg,
+      category: [ "web"],
+      demoLink: "https://auto-doc-seven.vercel.app/",
+      githubLink: "https://github.com/solve-ease/Auto-Doc-Manager",
+      technologies: ["React", "Expressjs", "Solidity", "Pinata + Infura", "Ethereum", "PostgreSQL"]
     },
     {
       id: 5,
-      title: "Supply Chain Management System",
-      description: "A comprehensive solution for tracking inventory, managing suppliers, and optimizing logistics operations.",
-      image: "/images/projects/supply-chain.jpg",
-      category: ["web"],
-      demoLink: "https://demo.solve-ease.com/supply-chain",
-      githubLink: "https://github.com/solve-ease/supply-chain",
-      technologies: ["React", "Node.js", "GraphQL", "MongoDB"]
+      title: "Medicure RAG Chatbot",
+      description: "A Medical assitant Chatbot using Retrieval Augmented Generation powered by Meta Llama2-7b LLM quantized Model. The Web App is built using streamlit and deployed on huggingface hub spaces",
+      image: "https://adarsh-maurya-dev.vercel.app/img/medicure-cert.webp",
+      category: ["ai", "web"],
+      demoLink: "https://huggingface.co/spaces/4darsh-Dev/medicure",
+      githubLink: "https://github.com/4darsh-Dev/medicure-rag-chatbot/",
+      technologies: ["Python", "LLM", "Langchain", "Pinecone", "Streamlit"]
     },
+    
     {
       id: 6,
-      title: "Augmented Reality Shopping App",
-      description: "An innovative mobile app that allows users to visualize products in their space before purchasing.",
-      image: "/images/projects/ar-shopping.jpg",
-      category: ["mobile"],
+      title: "CogniGuard: Dark Pattern Detector",
+      description: "A web extension for detecing and combatting dark patterns on various websites, particularly focusing on E-commerce platforms.",
+      image: "https://adarsh-maurya-dev.vercel.app/img/cogniguard-cert.webp",
+      category: ["web", "ai"],
       demoLink: "https://demo.solve-ease.com/ar-shopping",
-      githubLink: "https://github.com/solve-ease/ar-shopping",
-      technologies: ["React Native", "ARKit", "ARCore", "Firebase"]
+      githubLink: "https://github.com/4darsh-Dev/CogniGaurd",
+      technologies: ["JavaScript", "HTML","CSS","BERT-LLM", "Redis","Celery", "AWS", "Django", "Gunicorn+Nginx", "PostgreSQL"]
     }
   ];
 
