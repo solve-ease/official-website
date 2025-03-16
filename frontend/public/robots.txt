@@ -1,5 +1,5 @@
 # Robots.txt file for Solve-Ease
-# https://solve-ease.vercel.app/
+# https://www.solveease.tech/
 
 User-agent: *
 Allow: /
@@ -28,5 +28,5 @@ User-agent: Googlebot-Image
 Crawl-delay: 2
 
 # Define sitemap location
-Sitemap: https://solve-ease.vercel.app/sitemap.xml
+Sitemap: https://www.solveease.tech/sitemap.xml
 
