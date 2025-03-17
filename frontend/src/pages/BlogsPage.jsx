@@ -1,5 +1,4 @@
-import React, { useState, Suspense } from 'react';
-import { useQuery } from 'react-query';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, SlidersHorizontal } from 'lucide-react';
 import { fetchBlogPosts } from '../services/blogService';
@@ -11,11 +10,14 @@ import BlogTagsFilter from '../components/blog/BlogTagsFilter';
 import BlogPagination from '../components/blog/BlogPagination';
 import PageHeader from '../components/layout/PageHeader';
 import Section from '../components/layout/Section';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
 
 // Lazy loaded components for code splitting
-const BlogDetailView = React.lazy(() => import('../components/blog/BlogDetailView'));
+// const BlogDetailView = React.lazy(() => import('../components/blog/BlogDetailView'));
 
-const  BlogsPage = () => {
+const BlogsPage = () => {
   // State management
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,28 +25,90 @@ const  BlogsPage = () => {
   const [sortBy, setSortBy] = useState('date_desc');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
+  // States to replace react-query functionality
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   // Debounce search to avoid excessive API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   
   // Items per page
   const ITEMS_PER_PAGE = 9;
-  
-  // Fetch blog posts with react-query
-  const { data, isLoading, error } = useQuery(
-    ['blogPosts', debouncedSearchTerm, currentPage, selectedTags, sortBy],
-    () => fetchBlogPosts({
-      search: debouncedSearchTerm,
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      tags: selectedTags,
-      sort: sortBy
-    }),
-    {
-      keepPreviousData: true,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    }
-  );
 
+  // Cache key generation function - creates a unique key based on our query parameters
+  const generateCacheKey = (search, page, tags, sort) => {
+    return `blogPosts_${search}_${page}_${tags.join('_')}_${sort}`;
+  };
+  
+  // This effect replaces the react-query hook
+  useEffect(() => {
+    // Keep track of whether the component is mounted
+    let isMounted = true;
+    
+    // Function to fetch blog posts
+    const loadBlogPosts = async () => {
+      setIsLoading(true);
+      
+      try {
+        // Generate cache key for this specific query
+        const cacheKey = generateCacheKey(
+          debouncedSearchTerm,
+          currentPage,
+          selectedTags,
+          sortBy
+        );
+        
+        // Check if we have cached data that's not stale
+        const cachedData = sessionStorage.getItem(cacheKey);
+        const cachedTimestamp = sessionStorage.getItem(`${cacheKey}_timestamp`);
+        const now = Date.now();
+        const staleTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+        
+        // If we have fresh cached data, use it
+        if (cachedData && cachedTimestamp && (now - parseInt(cachedTimestamp)) < staleTime) {
+          if (isMounted) {
+            setData(JSON.parse(cachedData));
+            setIsLoading(false);
+          }
+          return;
+        }
+        
+        // If no valid cached data, fetch fresh data
+        const fetchedData = await fetchBlogPosts({
+          search: debouncedSearchTerm,
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          tags: selectedTags,
+          sort: sortBy
+        });
+        
+        // Only update state if the component is still mounted
+        if (isMounted) {
+          setData(fetchedData);
+          setIsLoading(false);
+          
+          // Cache the result with timestamp
+          sessionStorage.setItem(cacheKey, JSON.stringify(fetchedData));
+          sessionStorage.setItem(`${cacheKey}_timestamp`, now.toString());
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err);
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    // Call the function to load blog posts
+    loadBlogPosts();
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMounted = false;
+    };
+  }, [debouncedSearchTerm, currentPage, selectedTags, sortBy]); // Dependencies reflect the query keys from react-query
+  
   // Animation variants for staggered animations
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -82,6 +146,8 @@ const  BlogsPage = () => {
   };
 
   return (
+    <>
+    <Navbar />
     <div className="min-h-screen bg-gray-50">
       <PageHeader
         title="Our Blog"
@@ -162,6 +228,8 @@ const  BlogsPage = () => {
         </motion.div>
       </Section>
     </div>
+    <Footer />
+    </>
   );
 };
 

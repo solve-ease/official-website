@@ -1,3 +1,18 @@
+
+import { Fragment } from 'react';
+import { Menu, Transition } from '@headlessui/react';
+
+import { ChevronDown, Calendar, User2 } from 'lucide-react';
+
+const sortOptions = [
+    { id: 'latest', label: 'Latest', icon: <Calendar size={16} /> },
+    { id: 'oldest', label: 'Oldest', icon: <Calendar size={16} className="transform rotate-180" /> },
+    { id: 'author', label: 'Author', icon: <User2 size={16} />
+
+    },
+  ];
+
+
 const BlogSorting = ({ value, onChange }) => {
     const selectedOption = sortOptions.find(option => option.id === value) || sortOptions[0];
   
