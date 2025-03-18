@@ -38,10 +38,10 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        # Generate tokens
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
-        
+       # Generate tokens
+        access_token = create_access_token(identity=str(user.id))  # Convert user.id to string
+        refresh_token = create_refresh_token(identity=str(user.id))  # Convert user.id to string
+
         return jsonify({
             'success': True,
             'message': 'User registered successfully',
@@ -54,12 +54,43 @@ def register():
         current_app.logger.error(f"Error registering user: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
 
+
+# def login():
+#     """Login a user and return JWT tokens."""
+#     try:
+#         data = request.get_json()
+        
+#         # Get user by email
+#         user = User.query.filter_by(email=data.get('email')).first()
+        
+#         # Check if user exists and password is correct
+#         if not user or not check_password_hash(user.password_hash, data.get('password', '')):
+#             return jsonify({'error': 'Invalid email or password'}), 401
+        
+#         # Generate tokens
+#         access_token = create_access_token(identity=user.id)
+#         refresh_token = create_refresh_token(identity=user.id)
+        
+#         return jsonify({
+#             'access_token': access_token,
+#             'refresh_token': refresh_token,
+#             'user': user.to_dict()
+#         }), 200
+        
+#     except Exception as e:
+#         current_app.logger.error(f"Error logging in user: {str(e)}")
+#         return jsonify({'error': 'An error occurred processing your request'}), 500
+
 @api_bp.route('/auth/login', methods=['POST'])
 def login():
     """Login a user and return JWT tokens."""
     try:
         data = request.get_json()
         
+        # Validate required fields
+        if not data.get('email') or not data.get('password'):
+            return jsonify({'error': 'Email and password are required'}), 400
+
         # Get user by email
         user = User.query.filter_by(email=data.get('email')).first()
         
@@ -67,9 +98,12 @@ def login():
         if not user or not check_password_hash(user.password_hash, data.get('password', '')):
             return jsonify({'error': 'Invalid email or password'}), 401
         
-        # Generate tokens
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
+        # Generate tokens (ensure identity is a string)
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
+
+        # debug step
+        print(access_token)
         
         return jsonify({
             'access_token': access_token,
@@ -97,3 +131,5 @@ def refresh():
     except Exception as e:
         current_app.logger.error(f"Error refreshing token: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
+    
+

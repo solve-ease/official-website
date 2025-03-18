@@ -1,314 +1,248 @@
-# api/blog_routes.py - Blog related routes
+
+
 from flask import request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from sqlalchemy import desc, func, or_
-from . import api_bp
-from extensions import db
-from models.blog import BlogPost, BlogTag, BlogPostTag, BlogComment, BlogSubscriber
+from sqlalchemy import func, and_, or_
 from datetime import datetime
-import re
+from models.blog import BlogPost, BlogTag, BlogPostTag, BlogComment, BlogSubscriber
+from extensions import db
+from . import api_bp
 
-# Helper function to generate slug from title
-def generate_slug(title):
-    # Convert to lowercase and replace spaces with hyphens
-    slug = re.sub(r'[^\w\s-]', '', title.lower())
-    slug = re.sub(r'[\s_-]+', '-', slug)
-    slug = re.sub(r'^-+|-+$', '', slug)
-    return slug
 
-# Helper function to sanitize sort parameter
-def parse_sort_param(sort_param):
-    valid_fields = ['created_at', 'updated_at', 'published_at', 'view_count', 'title']
-    valid_directions = ['asc', 'desc']
+
+# Add a new blog post
+@api_bp.route('/blog/posts', methods=['POST'])
+@jwt_required()
+def create_blog_post():
+    """Create a new blog post."""
+    try:
+        data = request.get_json()
+        user_id = get_jwt_identity()  # Get the authenticated user's ID
+
+        # Validate required fields
+        required_fields = ['title', 'slug', 'content']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+
+        # Check if the slug is unique
+        if BlogPost.query.filter_by(slug=data['slug']).first():
+            return jsonify({'error': 'Slug must be unique'}), 400
+
+        # Create the blog post
+        post = BlogPost(
+            title=data['title'],
+            slug=data['slug'],
+            content=data['content'],
+            excerpt=data.get('excerpt', ''),
+            featured_image=data.get('featured_image', ''),
+            author_id=user_id,
+            
+            # author_id = db.Column(db.String, db.ForeignKey('users.id')) , # Updated here
+            published_at=datetime.utcnow() if data.get('status') == 'published' else None,
+            status=data.get('status', 'draft'),
+            meta_title=data.get('meta_title', ''),
+            meta_description=data.get('meta_description', ''),
+            reading_time=data.get('reading_time', 5)
+        )
+
+        # Add tags to the post (if provided)
+        if 'tags' in data:
+            for tag_id in data['tags']:
+                tag = BlogTag.query.get(tag_id)
+                if tag:
+                    post.tags.append(tag)
+
+        db.session.add(post)
+        db.session.commit()
+
+        return jsonify(post.to_dict()), 201
+
+    except Exception as e:
+        current_app.logger.error(f"Error creating blog post: {str(e)}")
+        return jsonify({'error': 'An error occurred processing your request'}), 500
+
+# Add a new tag
+@api_bp.route('/blog/tags', methods=['POST'])
+@jwt_required()
+def create_tag():
+    """Create a new blog tag."""
+    try:
+        user_id = get_jwt_identity()  # Extract user from token
+        print(f"User ID from token: {user_id}")  # Debugging
+
+        data = request.get_json()
+        print(f"Received data: {data}")  # Debugging
+
+        if not user_id:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+  
+        print(data)
+        # Validate required fields
+        required_fields = ['name', 'slug']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+
+        # Check if the tag name or slug is unique
+        if BlogTag.query.filter_by(name=data['name']).first():
+            return jsonify({'error': 'Tag name must be unique'}), 400
+        if BlogTag.query.filter_by(slug=data['slug']).first():
+            return jsonify({'error': 'Tag slug must be unique'}), 400
+
+        # Create the tag
+        tag = BlogTag(
+            name=data['name'],
+            slug=data['slug'],
+            description=data.get('description', '')
+        )
+
+        db.session.add(tag)
+        db.session.commit()
+
+        return jsonify(tag.to_dict()), 201
+
+    except Exception as e:
+        current_app.logger.error(f"Error creating tag: {str(e)}")
+        return jsonify({'error': 'An error occurred processing your request'}), 500
     
-    if '_' in sort_param:
-        field, direction = sort_param.split('_')
-        if field in valid_fields and direction in valid_directions:
-            return field, direction
-    
-    # Default to date descending if invalid
-    return 'published_at', 'desc'
+
 
 @api_bp.route('/blog/posts', methods=['GET'])
 def get_blog_posts():
-    """Fetch blog posts with filtering, sorting, and pagination"""
+    """Fetch blog posts with filtering, sorting, and pagination."""
     try:
-        # Get query parameters
         search = request.args.get('search', '')
         page = int(request.args.get('page', 1))
-        limit = min(int(request.args.get('limit', 9)), 50)  # Cap at 50 to prevent abuse
+        limit = int(request.args.get('limit', 9))
         tags = request.args.get('tags', '')
-        sort_param = request.args.get('sort', 'date_desc')
-        
-        # Parse tags (comma-separated string to list)
-        tag_list = tags.split(',') if tags else []
-        
-        # Base query - only published posts
-        query = BlogPost.query.filter(BlogPost.status == 'published')
-        
-        # Apply search filter if provided
+        sort = request.args.get('sort', 'date_desc')
+
+        query = BlogPost.query
+
+        # Apply search filter
         if search:
-            search_term = f"%{search}%"
             query = query.filter(or_(
-                BlogPost.title.ilike(search_term),
-                BlogPost.content.ilike(search_term),
-                BlogPost.excerpt.ilike(search_term)
+                BlogPost.title.ilike(f'%{search}%'),
+                BlogPost.content.ilike(f'%{search}%')
             ))
-        
-        # Apply tag filter if provided
-        if tag_list:
-            query = query.join(BlogPostTag).join(BlogTag).filter(
-                BlogTag.id.in_(tag_list) if tag_list[0].startswith('uuid') else BlogTag.slug.in_(tag_list)
-            )
-        
+
+        # Apply tags filter
+        if tags:
+            tag_ids = [tag.strip() for tag in tags.split(',')]
+            query = query.join(BlogPostTag).filter(BlogPostTag.tag_id.in_(tag_ids))
+
         # Apply sorting
-        sort_field, sort_direction = parse_sort_param(sort_param)
-        if sort_field == 'date':
-            sort_field = 'published_at'
-            
-        if sort_direction == 'desc':
-            query = query.order_by(desc(getattr(BlogPost, sort_field)))
-        else:
-            query = query.order_by(getattr(BlogPost, sort_field))
-        
-        # Apply pagination
+        if sort == 'date_desc':
+            query = query.order_by(BlogPost.published_at.desc())
+        elif sort == 'date_asc':
+            query = query.order_by(BlogPost.published_at.asc())
+
+        # Pagination
         paginated_posts = query.paginate(page=page, per_page=limit, error_out=False)
-        
-        # Format results
         posts = [post.to_dict() for post in paginated_posts.items]
-        
-        # Return response with pagination metadata
+
         return jsonify({
             'posts': posts,
-            'pagination': {
-                'total': paginated_posts.total,
-                'pages': paginated_posts.pages,
-                'page': page,
-                'limit': limit,
-                'has_next': paginated_posts.has_next,
-                'has_prev': paginated_posts.has_prev
-            }
+            'total': paginated_posts.total,
+            'page': page,
+            'limit': limit
         }), 200
-        
+
     except Exception as e:
         current_app.logger.error(f"Error fetching blog posts: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
 
 @api_bp.route('/blog/tags', methods=['GET'])
-def get_blog_tags():
-    """Fetch all available tags for blog posts"""
+def get_all_tags():
+    """Fetch all available tags for blog posts."""
     try:
         tags = BlogTag.query.all()
-        return jsonify({
-            'tags': [tag.to_dict() for tag in tags]
-        }), 200
-        
+        return jsonify([tag.to_dict() for tag in tags]), 200
     except Exception as e:
         current_app.logger.error(f"Error fetching blog tags: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
 
 @api_bp.route('/blog/posts/<string:slug>', methods=['GET'])
 def get_blog_post_by_slug(slug):
-    """Fetch a single blog post by slug"""
+    """Fetch a single blog post by slug."""
     try:
-        post = BlogPost.query.filter_by(slug=slug).first()
-        
-        if not post:
-            return jsonify({'error': 'Blog post not found'}), 404
-        
-        # Include tags in the response
-        post_data = post.to_dict(include_tags=True)
-        
-        return jsonify({
-            'post': post_data
-        }), 200
-        
+        post = BlogPost.query.filter_by(slug=slug).first_or_404()
+        return jsonify(post.to_dict()), 200
     except Exception as e:
         current_app.logger.error(f"Error fetching blog post {slug}: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
 
 @api_bp.route('/blog/posts/<string:post_id>/related', methods=['GET'])
 def get_related_posts(post_id):
-    """Fetch related blog posts based on a post's tags"""
+    """Fetch related blog posts based on a post's tags or category."""
     try:
-        limit = min(int(request.args.get('limit', 3)), 10)  # Cap at 10
-        
-        # Get the post
-        post = BlogPost.query.get(post_id)
-        if not post:
-            return jsonify({'error': 'Blog post not found'}), 404
-        
-        # Get the post's tags
-        post_tags = [tag.id for tag in post.tags]
-        
-        if not post_tags:
-            # If no tags, return recent posts
-            related_posts = BlogPost.query.filter(
-                BlogPost.id != post_id,
-                BlogPost.status == 'published'
-            ).order_by(desc(BlogPost.published_at)).limit(limit).all()
-        else:
-            # Find posts with matching tags
-            related_posts = BlogPost.query.join(BlogPostTag).filter(
-                BlogPost.id != post_id,
-                BlogPost.status == 'published',
-                BlogPostTag.tag_id.in_(post_tags)
-            ).group_by(BlogPost.id).order_by(
-                desc(func.count(BlogPostTag.tag_id)),
-                desc(BlogPost.published_at)
-            ).limit(limit).all()
-        
-        return jsonify({
-            'posts': [post.to_dict() for post in related_posts]
-        }), 200
-        
+        limit = int(request.args.get('limit', 3))
+        post = BlogPost.query.get_or_404(post_id)
+        tag_ids = [tag.id for tag in post.tags]
+        related_posts = BlogPost.query.join(BlogPostTag).filter(
+            BlogPostTag.tag_id.in_(tag_ids),
+            BlogPost.id != post_id
+        ).limit(limit).all()
+        return jsonify([post.to_dict() for post in related_posts]), 200
     except Exception as e:
         current_app.logger.error(f"Error fetching related posts: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
 
 @api_bp.route('/blog/posts/<string:post_id>/view', methods=['POST'])
-def increment_view_count(post_id):
-    """Increment view count for a blog post"""
+def increment_post_view_count(post_id):
+    """Increment view count for a blog post."""
     try:
-        post = BlogPost.query.get(post_id)
-        if not post:
-            return jsonify({'error': 'Blog post not found'}), 404
-        
-        # Increment view count
+        post = BlogPost.query.get_or_404(post_id)
         post.view_count += 1
         db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'view_count': post.view_count
-        }), 200
-        
+        return jsonify(post.to_dict()), 200
     except Exception as e:
-        current_app.logger.error(f"Error incrementing view count: {str(e)}")
-        db.session.rollback()
+        current_app.logger.error(f"Error incrementing post view count: {str(e)}")
+        return jsonify({'error': 'An error occurred processing your request'}), 500
+
+@api_bp.route('/blog/posts/<string:post_id>/comments', methods=['POST'])
+@jwt_required()
+def submit_comment(post_id):
+    """Submit a comment on a blog post."""
+    try:
+        data = request.get_json()
+        user_id = get_jwt_identity()
+        comment = BlogComment(
+            post_id=post_id,
+            user_id=user_id,
+            content=data['content'],
+            author_name=data.get('author_name'),
+            author_email=data.get('author_email')
+        )
+        db.session.add(comment)
+        db.session.commit()
+        return jsonify(comment.to_dict()), 201
+    except Exception as e:
+        current_app.logger.error(f"Error submitting comment: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
 
 @api_bp.route('/blog/posts/<string:post_id>/comments', methods=['GET'])
 def get_comments(post_id):
-    """Fetch comments for a blog post"""
+    """Fetch comments for a blog post."""
     try:
-        post = BlogPost.query.get(post_id)
-        if not post:
-            return jsonify({'error': 'Blog post not found'}), 404
-        
-        # Get parent comments first (where parent_id is null)
-        parent_comments = BlogComment.query.filter_by(
-            post_id=post_id,
-            parent_id=None,
-            is_approved=True
-        ).order_by(desc(BlogComment.created_at)).all()
-        
-        # Format comments with replies
-        formatted_comments = []
-        for comment in parent_comments:
-            comment_dict = comment.to_dict()
-            # Get replies for this comment
-            replies = BlogComment.query.filter_by(
-                parent_id=comment.id,
-                is_approved=True
-            ).order_by(BlogComment.created_at).all()
-            comment_dict['replies'] = [reply.to_dict() for reply in replies]
-            formatted_comments.append(comment_dict)
-        
-        return jsonify({
-            'comments': formatted_comments,
-            'total': len(formatted_comments)
-        }), 200
-        
+        comments = BlogComment.query.filter_by(post_id=post_id).all()
+        return jsonify([comment.to_dict() for comment in comments]), 200
     except Exception as e:
         current_app.logger.error(f"Error fetching comments: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
 
-@api_bp.route('/blog/posts/<string:post_id>/comments', methods=['POST'])
-def add_comment(post_id):
-    """Submit a comment on a blog post"""
-    try:
-        data = request.get_json()
-        post = BlogPost.query.get(post_id)
-        
-        if not post:
-            return jsonify({'error': 'Blog post not found'}), 404
-        
-        # Check if user is authenticated
-        user_id = None
-        is_approved = False
-        
-        try:
-            user_id = get_jwt_identity()
-            # Auto-approve comments from authenticated users
-            is_approved = True
-        except:
-            # Anonymous comment - requires approval
-            pass
-        
-        # Create new comment
-        comment = BlogComment(
-            post_id=post_id,
-            user_id=user_id,
-            parent_id=data.get('parent_id'),
-            content=data.get('content'),
-            author_name=data.get('author_name'),
-            author_email=data.get('author_email'),
-            is_approved=is_approved
-        )
-        
-        db.session.add(comment)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Comment submitted successfully',
-            'comment': comment.to_dict(),
-            'is_approved': is_approved
-        }), 201
-        
-    except Exception as e:
-        current_app.logger.error(f"Error submitting comment: {str(e)}")
-        db.session.rollback()
-        return jsonify({'error': 'An error occurred processing your request'}), 500
-
 @api_bp.route('/blog/newsletter/subscribe', methods=['POST'])
-def subscribe_newsletter():
-    """Subscribe to blog newsletter"""
+def subscribe_to_newsletter():
+    """Subscribe to blog newsletter."""
     try:
         data = request.get_json()
-        email = data.get('email')
-        
-        if not email:
-            return jsonify({'error': 'Email is required'}), 400
-        
-        # Check if already subscribed
-        existing = BlogSubscriber.query.filter_by(email=email).first()
-        if existing:
-            if existing.is_active:
-                return jsonify({'message': 'Already subscribed to newsletter'}), 200
-            else:
-                # Reactivate subscription
-                existing.is_active = True
-                existing.updated_at = datetime.utcnow()
-                db.session.commit()
-                return jsonify({'success': True, 'message': 'Subscription reactivated'}), 200
-        
-        # Create new subscriber
-        subscriber = BlogSubscriber(
-            email=email,
-            is_active=True
-        )
-        
+        email = data['email']
+        subscriber = BlogSubscriber(email=email)
         db.session.add(subscriber)
         db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Successfully subscribed to newsletter'
-        }), 201
-        
+        return jsonify({'success': True, 'message': 'Subscribed successfully'}), 201
     except Exception as e:
         current_app.logger.error(f"Error subscribing to newsletter: {str(e)}")
-        db.session.rollback()
-        return
+        return jsonify({'error': 'An error occurred processing your request'}), 500
