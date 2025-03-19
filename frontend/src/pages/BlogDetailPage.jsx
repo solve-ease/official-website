@@ -1,26 +1,16 @@
-import React, { useEffect } from 'react';
+
+
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useQuery } from 'react-query';
 import { motion } from 'framer-motion';
-import { 
-  Calendar, 
-  Clock, 
-  User, 
-  Share2, 
-  Facebook, 
-  Twitter, 
-  Linkedin,
-  ArrowLeft,
-  BookmarkPlus,
-  MessageCircle,
-  Heart,
-  Tag,
-  Copy
+import {
+  Calendar, Clock, User, Share2, Facebook, Twitter, Linkedin,
+  ArrowLeft, BookmarkPlus, MessageCircle, Heart, Tag, Copy
 } from 'lucide-react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import parse from 'html-react-parser';
-import { 
-  fetchBlogPostBySlug, 
+import {
+  fetchBlogPostBySlug,
   fetchRelatedPosts,
   incrementPostViewCount
 } from '../services/blogService';
@@ -30,55 +20,57 @@ import BlogCard from '../components/blog/BlogCard';
 import NewsletterSubscribe from '../components/blog/NewsletterSubscribe';
 import BlogComments from '../components/blog/BlogComments';
 
+import  Navbar from "../components/Navbar";
+import  Footer from "../components/Footer";
+
+
 const BlogDetailPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  
-  // Fetch blog post
-  const { 
-    data: post, 
-    isLoading: isPostLoading, 
-    error: postError 
-  } = useQuery(
-    ['blogPost', slug],
-    () => fetchBlogPostBySlug(slug),
-    {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1,
-      onError: (error) => {
-        // Redirect to 404 page if post not found
-        if (error.response && error.response.status === 404) {
+  const [post, setPost] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [relatedPosts, setRelatedPosts] = useState([]);
+  const [isRelatedLoading, setIsRelatedLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const data = await fetchBlogPostBySlug(slug);
+        setPost(data);
+        incrementPostViewCount(data.id);
+      } catch (err) {
+        if (err.response?.status === 404) {
           navigate('/blog/not-found', { replace: true });
         }
+        setError(err);
+      } finally {
+        setIsLoading(false);
       }
-    }
-  );
-  
-  // Fetch related posts
-  const { 
-    data: relatedPosts, 
-    isLoading: isRelatedLoading 
-  } = useQuery(
-    ['relatedPosts', post?.id],
-    () => fetchRelatedPosts(post.id),
-    {
-      enabled: !!post?.id,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    }
-  );
-  
-  // Track view count
+    };
+    fetchPost();
+  }, [slug, navigate]);
+
   useEffect(() => {
-    if (post?.id) {
-      incrementPostViewCount(post.id);
-    }
-  }, [post?.id]);
-  
-  // Copy URL to clipboard
+    if (!post?.id) return;
+    const fetchRelated = async () => {
+      try {
+        const related = await fetchRelatedPosts(post.id);
+        setRelatedPosts(related);
+      } catch {
+        setRelatedPosts([]);
+      } finally {
+        setIsRelatedLoading(false);
+      }
+    };
+    fetchRelated();
+  }, [post]);
+
+
+
   const copyPageUrl = () => {
     navigator.clipboard.writeText(window.location.href);
-    // Show a toast notification
-    // toast.success('URL copied to clipboard!');
+    alert('URL copied to clipboard!');
   };
   
   // Animation variants
@@ -99,7 +91,7 @@ const BlogDetailPage = () => {
   };
   
   // Show loading state
-  if (isPostLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -111,7 +103,7 @@ const BlogDetailPage = () => {
   }
   
   // Show error state
-  if (postError) {
+  if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
@@ -130,15 +122,18 @@ const BlogDetailPage = () => {
   }
   
   return (
+    <>
+    <Navbar />
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with Featured Image */}
       <div className="relative h-80 md:h-96 lg:h-[500px] overflow-hidden">
         <LazyLoadImage
-          src={post.featuredImage}
+          // src={post.featuredImage}
+          src="https://neilpatel.com/wp-content/uploads/2019/04/social-media-trends-2025-003.webp"
           alt={post.title}
           className="w-full h-full object-cover"
           effect="blur"
-          placeholderSrc="/images/placeholder.jpg"
+          placeholderSrc="https://neilpatel.com/wp-content/uploads/2019/04/social-media-trends-2025-003.webp"
         />
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         
@@ -389,6 +384,8 @@ const BlogDetailPage = () => {
         </div>
       </Section>
     </div>
+    <Footer />
+    </>
   );
 };
 
