@@ -2,45 +2,6 @@ from datetime import datetime
 from extensions import db
 import uuid
 
-# class BlogPost(db.Model):
-#     __tablename__ = 'blog_posts'
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     title = db.Column(db.String(255), nullable=False)
-#     slug = db.Column(db.String(255), nullable=False, unique=True)
-#     content = db.Column(db.Text, nullable=False)
-#     excerpt = db.Column(db.Text)
-#     featured_image = db.Column(db.String(255))
-#     author_id = db.Column(db.String, db.ForeignKey('auth.users.id'))
-#     published_at = db.Column(db.DateTime)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-#     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-#     view_count = db.Column(db.Integer, default=0)
-#     status = db.Column(db.String(20), default='draft')
-#     meta_title = db.Column(db.String(255))
-#     meta_description = db.Column(db.Text)
-#     reading_time = db.Column(db.Integer)
-#     tags = db.relationship('BlogTag', secondary='blog_post_tags', back_populates='posts')
-
-#     def to_dict(self):
-#         return {
-#             'id': self.id,
-#             'title': self.title,
-#             'slug': self.slug,
-#             'content': self.content,
-#             'excerpt': self.excerpt,
-#             'featured_image': self.featured_image,
-#             'author_id': self.author_id,
-#             'published_at': self.published_at.isoformat() if self.published_at else None,
-#             'created_at': self.created_at.isoformat(),
-#             'updated_at': self.updated_at.isoformat(),
-#             'view_count': self.view_count,
-#             'status': self.status,
-#             'meta_title': self.meta_title,
-#             'meta_description': self.meta_description,
-#             'reading_time': self.reading_time,
-#             'tags': [tag.to_dict() for tag in self.tags]
-#         }
-    
 class BlogPost(db.Model):
     __tablename__ = 'blog_posts'
     id = db.Column(db.String, primary_key=True, default=lambda: str(uuid.uuid4()))
