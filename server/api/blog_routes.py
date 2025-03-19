@@ -190,7 +190,7 @@ def get_related_posts(post_id):
         current_app.logger.error(f"Error fetching related posts: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
 
-@api_bp.route('/blog/posts/<string:post_id>/view', methods=['POST'])
+@api_bp.route('/blog/posts/<string:post_id>/views', methods=['POST'])
 def increment_post_view_count(post_id):
     """Increment view count for a blog post."""
     try:
@@ -248,6 +248,7 @@ def submit_comment(post_id):
 def get_comments(post_id):
     """Fetch comments for a blog post."""
     try:
+        # print("calling for comments")
         # Validate and convert post_id to UUID
         try:
             post_id = str(UUID(post_id))
