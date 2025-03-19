@@ -7,7 +7,7 @@ from datetime import datetime
 from models.blog import BlogPost, BlogTag, BlogPostTag, BlogComment, BlogSubscriber
 from extensions import db
 from . import api_bp
-
+from uuid import UUID
 
 
 # Add a new blog post
@@ -202,33 +202,61 @@ def increment_post_view_count(post_id):
         current_app.logger.error(f"Error incrementing post view count: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
 
+
+
 @api_bp.route('/blog/posts/<string:post_id>/comments', methods=['POST'])
 @jwt_required()
 def submit_comment(post_id):
     """Submit a comment on a blog post."""
     try:
         data = request.get_json()
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # Ensure user_id is an integer
+
+        # Validate and convert post_id to UUID
+        try:
+            post_id = str(UUID(post_id))  # Ensure post_id is a valid UUID format
+        except ValueError:
+            return jsonify({'error': 'Invalid post_id format. Must be a valid UUID.'}), 400
+
+        # Ensure parent_id (if provided) is a valid UUID
+        parent_id = data.get('parent_id')
+        if parent_id:
+            try:
+                parent_id = str(UUID(parent_id))
+            except ValueError:
+                return jsonify({'error': 'Invalid parent_id format. Must be a valid UUID.'}), 400
+
         comment = BlogComment(
             post_id=post_id,
-            user_id=user_id,
+            user_id=user_id,  # Ensure user_id is correctly formatted as an integer
+            parent_id=parent_id,
             content=data['content'],
             author_name=data.get('author_name'),
             author_email=data.get('author_email')
         )
+
         db.session.add(comment)
         db.session.commit()
         return jsonify(comment.to_dict()), 201
+
     except Exception as e:
         current_app.logger.error(f"Error submitting comment: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
+
 
 @api_bp.route('/blog/posts/<string:post_id>/comments', methods=['GET'])
 def get_comments(post_id):
     """Fetch comments for a blog post."""
     try:
+        # Validate and convert post_id to UUID
+        try:
+            post_id = str(UUID(post_id))
+        except ValueError:
+            return jsonify({'error': 'Invalid post_id format. Must be a valid UUID.'}), 400
+
         comments = BlogComment.query.filter_by(post_id=post_id).all()
         return jsonify([comment.to_dict() for comment in comments]), 200
+
     except Exception as e:
         current_app.logger.error(f"Error fetching comments: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
@@ -245,4 +273,16 @@ def subscribe_to_newsletter():
         return jsonify({'success': True, 'message': 'Subscribed successfully'}), 201
     except Exception as e:
         current_app.logger.error(f"Error subscribing to newsletter: {str(e)}")
+        return jsonify({'error': 'An error occurred processing your request'}), 500
+    
+
+@api_bp.route('/blog/newsletter/subscribers', methods=['GET'])
+@jwt_required()  
+def get_subscribers():
+    """Fetch the list of newsletter subscribers."""
+    try:
+        subscribers = BlogSubscriber.query.all()
+        return jsonify([{'id': sub.id, 'email': sub.email, 'is_active': sub.is_active, 'subscribed_at': sub.created_at} for sub in subscribers]), 200
+    except Exception as e:
+        current_app.logger.error(f"Error fetching subscribers: {str(e)}")
         return jsonify({'error': 'An error occurred processing your request'}), 500
