@@ -11,7 +11,29 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import slugify from 'slugify';
+import api from '../services/loginService';
 
+// const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// // Create an axios instance with default config
+// const api = axios.create({
+//   baseURL: `${API_URL}`,
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+// });
+
+// // Add request interceptor to attach the token
+// api.interceptors.request.use((config) => {
+//     const token = localStorage.getItem('access_token');
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+//   }, (error) => {
+//     return Promise.reject(error);
+//   });
+
+  
 const BlogAdminPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -62,7 +84,7 @@ const BlogAdminPage = () => {
 
   const fetchTags = async () => {
     try {
-      const response = await axios.get('/api/blog/tags');
+      const response = await api.get('/blog/tags');
       setTags(response.data);
     } catch (error) {
       console.error('Error fetching tags:', error);
@@ -72,7 +94,7 @@ const BlogAdminPage = () => {
   const fetchPost = async (postId) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`/api/blog/posts/${postId}`);
+      const response = await api.get(`/blog/posts/${postId}`);
       const post = response.data;
       setFormData({
         title: post.title,
@@ -139,7 +161,7 @@ const BlogAdminPage = () => {
   const createTag = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/blog/tags', newTag);
+      const response = await api.post('/blog/tags', newTag);
       setTags(prev => [...prev, response.data]);
       setNewTag({ name: '', slug: '', description: '' });
       setSuccessMessage('Tag created successfully!');
@@ -194,9 +216,9 @@ const BlogAdminPage = () => {
       // Create or update the post
       let response;
       if (id) {
-        response = await axios.put(`/api/blog/posts/${id}`, formData);
+        response = await api.put(`/blog/posts/${id}`, formData);
       } else {
-        response = await axios.post('/api/blog/posts', formData);
+        response = await api.post('/blog/posts', formData);
       }
       
       setSuccessMessage(id ? 'Post updated successfully!' : 'Post created successfully!');
@@ -469,7 +491,7 @@ const BlogAdminPage = () => {
             <div>
               <h3 className="text-sm font-medium mb-2">Select Tags</h3>
               <div className="max-h-60 overflow-y-auto border border-gray-300 rounded-md p-3">
-                {tags.length > 0 ? (
+                {/* {tags.length > 0 ? (
                   tags.map(tag => (
                     <div key={tag.id} className="flex items-center mb-2">
                       <input
@@ -487,7 +509,29 @@ const BlogAdminPage = () => {
                   ))
                 ) : (
                   <p className="text-sm text-gray-500">No tags available. Create one!</p>
+                )} */}
+
+                <div className="max-h-60 overflow-y-auto border border-gray-300 rounded-md p-3">
+                {Array.isArray(tags) && tags.length > 0 ? (
+                    tags.map(tag => (
+                    <div key={tag.id} className="flex items-center mb-2">
+                        <input
+                        type="checkbox"
+                        id={`tag-${tag.id}`}
+                        value={tag.id}
+                        checked={formData.tags.includes(tag.id)}
+                        onChange={handleTagChange}
+                        className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                        />
+                        <label htmlFor={`tag-${tag.id}`} className="ml-2 text-sm text-gray-700">
+                        {tag.name}
+                        </label>
+                    </div>
+                    ))
+                ) : (
+                    <p className="text-sm text-gray-500">No tags available. Create one!</p>
                 )}
+                </div>
               </div>
             </div>
             
