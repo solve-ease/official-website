@@ -3,7 +3,9 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-import adarshImg from "../assets/am-goel.jpg";
+// import adarshImg from "../assets/am-goel.jpg";
+
+const adarshImg = "https://auto-doc-seven.vercel.app/am-pic.png"
 // Create an axios instance with default config
 const api = axios.create({
   baseURL: `${API_URL}`,
@@ -126,8 +128,8 @@ function normalizeBlogPostData(post) {
       id: post.author_id,
       name: post.author_name || `Author #${post.author_id}`,
       avatar: post.author_avatar || adarshImg,
-      bio: post.author_bio || 'Entrepreneur, Developer, and Blogger',
-      role: post.author_role || 'Technical Expert',
+      bio: post.author_bio || "I'm an Entrepreneur, buildling solutions for world's pressing problems using latest tools and technology like Gen AI, Blockchain, etc.I love hackathons and working with bright minds towards building sustainable solutions and having fun with bugs in the code.",
+      role: post.author_role || 'Technical Expert  ',
     },
     featured: post.featured || false
   };
