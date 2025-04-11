@@ -14,6 +14,12 @@ class Config:
     # Supabase configuration
     SUPABASE_URL = os.environ.get('SUPABASE_URL')
     SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+    S3_ACCESS_KEY_ID= os.getenv('ACCESS_KEY_ID')
+    # SUPABASE_SECRET = os.getenv('ACCESS_KEY_ID')
+    S3_SECRET = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+    S3_BUCKET_NAME = os.getenv('SUPABASE_BUCKET_NAME')
+    S3_PUBLIC_URL = os.getenv('SUPABASE_PUBLIC_URL')
+    S3_REGION = os.getenv('SUPABASE_REGION')
     
     # JWT configuration
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', SECRET_KEY)
