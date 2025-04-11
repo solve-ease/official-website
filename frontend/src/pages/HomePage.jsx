@@ -8,6 +8,7 @@ import Achievements from '../components/Achievements'
 import Team from '../components/Team'
 import Contact from '../components/Contact'
 import Footer from '../components/Footer'
+import ChatBot from '../components/Chatbot'
 
 
 const HomePage = () => {
@@ -23,6 +24,7 @@ const HomePage = () => {
           <Contact />
         </main>
         <Footer />
+        <ChatBot />
 
     </div>
   )
