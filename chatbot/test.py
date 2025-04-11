@@ -8,7 +8,8 @@ llm.set_config({
 })
 
 
-llm.set_system_prompt("You are a helpful AI agent with the task of helping the user in any way possible. Dont give any answer larger than 100 words, but also dont make them too short either") # pro tip in the system prompt add that dont ever show that the word limit is of 100 words or add that you have to give concise answers to limit the token usage 
+llm.set_system_prompt("You are a helpful AI agent with the task of helping the user in any way possible. Dont give any answer larger than 100 words, but also dont make them too short either") # pro tip in the system prompt add that dont ever show that the word limit is of 100 words and add that you have to give concise answers to limit the token usage 
+# it is best practice to use shot prompting / chain of thought prompting / role prompting
 
 async def temp():
     while True:
