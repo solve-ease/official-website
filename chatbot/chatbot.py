@@ -45,7 +45,7 @@ class chatbot():
 
         # print(self.graph.get_state(self.config))
 
-        fin = ""
+        response = ""
 
         all_msgs = self.graph.get_state(self.config).values["messages"] + [{"role":  "user" , "content": message}]
         self.graph.update_state(self.config , {"messages": all_msgs})
@@ -60,10 +60,10 @@ class chatbot():
             )
         ):
             # print(chunk)
-            fin += chunk.content
+            response += chunk.content
             yield chunk.content
         
-        ai_message = [{"role" : "ai" , "content" : fin}]
+        ai_message = [{"role" : "ai" , "content" : response}]
         all_msgs = self.graph.get_state(self.config).values["messages"] + ai_message
 
         # print(all_msgs)
