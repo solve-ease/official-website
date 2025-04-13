@@ -11,6 +11,7 @@ import { useDropzone } from 'react-dropzone';
 import { useNavigate, useParams } from 'react-router-dom';
 import slugify from 'slugify';
 import api from '../services/loginService';
+import uploadService from '../services/uploadService';
 
 
   
@@ -152,31 +153,56 @@ const BlogAdminPage = () => {
     }
   };
 
+  // // Handle image uploads
+  // const onDrop = useCallback(async (acceptedFiles) => {
+  //   // Normally, you'd upload this to your server or a storage service
+  //   // For this example, we'll use a placeholder approach
+  //   try {
+  //     // Simulate uploading to backend/storage
+  //     // In a real app, you'd use FormData and send to your backend or S3/etc.
+  //     console.log('Uploading files:', acceptedFiles);
+      
+  //     // Assuming your backend returns a URL to the uploaded image
+  //     const imageUrl = URL.createObjectURL(acceptedFiles[0]);
+      
+  //     // Insert the image into the editor
+  //     if (editor) {
+  //       editor.chain().focus().setImage({ src: imageUrl }).run();
+  //     }
+      
+  //     // For featured image
+  //     if (acceptedFiles[0].type.includes('image')) {
+  //       setFormData(prev => ({ ...prev, featured_image: imageUrl }));
+  //     }
+  //   } catch (error) {
+  //     console.error('Error uploading file:', error);
+  //   }
+  // }, [editor]);
+
   // Handle image uploads
-  const onDrop = useCallback(async (acceptedFiles) => {
-    // Normally, you'd upload this to your server or a storage service
-    // For this example, we'll use a placeholder approach
-    try {
-      // Simulate uploading to backend/storage
-      // In a real app, you'd use FormData and send to your backend or S3/etc.
-      console.log('Uploading files:', acceptedFiles);
-      
-      // Assuming your backend returns a URL to the uploaded image
-      const imageUrl = URL.createObjectURL(acceptedFiles[0]);
-      
-      // Insert the image into the editor
-      if (editor) {
-        editor.chain().focus().setImage({ src: imageUrl }).run();
-      }
-      
-      // For featured image
-      if (acceptedFiles[0].type.includes('image')) {
-        setFormData(prev => ({ ...prev, featured_image: imageUrl }));
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
+const onDrop = useCallback(async (acceptedFiles) => {
+  try {
+    console.log('Uploading files:', acceptedFiles);
+    
+    const file = acceptedFiles[0];
+    
+    // Upload to backend which will store in Supabase
+    const imageUrl = await uploadService.uploadImage(file);
+    
+    // Insert the image into the editor
+    if (editor) {
+      editor.chain().focus().setImage({ src: imageUrl }).run();
     }
-  }, [editor]);
+    
+    // For featured image
+    if (file.type.includes('image')) {
+      setFormData(prev => ({ ...prev, featured_image: imageUrl }));
+    }
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    // You might want to add error handling here (show toast notification, etc.)
+  }
+}, [editor]);
 
   const { getRootProps, getInputProps } = useDropzone({ 
     onDrop,
