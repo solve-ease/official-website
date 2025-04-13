@@ -207,7 +207,7 @@ const fetchStreamingResponse = async (userMessage) => {
       {isOpen && (
         <div 
           className={`absolute bottom-16 left-0 bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col ${
-            isMinimized ? 'h-12 w-64' : 'h-96 w-80'
+            isMinimized ? 'h-12 w-64' : 'h-126 w-108'  /*dimensions of the chatbot popup*/
           } transition-all duration-300`}
         >
           {/* Chat header */}
