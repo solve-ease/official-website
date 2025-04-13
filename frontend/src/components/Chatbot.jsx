@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Send, X, MinusSquare } from 'lucide-react';
 
+const CHATBOT_URL = import.meta.env.VITE_CHATBOT_URL
+
 // Main ChatBot component
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -90,90 +92,30 @@ export default function ChatBot() {
 
   // Simulate streaming response from backend API
   const streamResponse = async (userMessage) => {
-    // This function simulates a streaming response
-    // In production, replace with actual API call using fetch with streaming responses
-    
-    // const simulatedResponses = {
-    //   project: "I'd love to tell you about my projects! Check out the Projects section on my portfolio or ask about a specific one.",
-    //   contact: "You can reach me through the contact form or directly at your@email.com",
-    //   experience: "I have X years of experience in web development, focusing on React and modern JavaScript.",
-    //   hello: "Hello there! How can I help you with my portfolio today?",
-    //   default: "Thanks for your message! I'm here to help you navigate through my portfolio and answer any questions you might have."
-    // };
-    
-    // // Determine which response to use
-    // let responseText = simulatedResponses.default;
-    // const lowerCaseMessage = userMessage.toLowerCase();
-    
-    // if (lowerCaseMessage.includes("project")) {
-    //   responseText = simulatedResponses.project;
-    // } else if (lowerCaseMessage.includes("contact") || lowerCaseMessage.includes("hire")) {
-    //   responseText = simulatedResponses.contact;
-    // } else if (lowerCaseMessage.includes("experience") || lowerCaseMessage.includes("work")) {
-    //   responseText = simulatedResponses.experience;
-    // } else if (lowerCaseMessage.includes("hello") || lowerCaseMessage.includes("hi")) {
-    //   responseText = simulatedResponses.hello;
-    // }
-
-    let responseText = await fetchStreamingResponse(userMessage)
-    
-    // Simulate streaming by revealing one character at a time
-    return new Promise((resolve) => {
-      let charIndex = 0;
-      const streamInterval = setInterval(() => {
-        if (charIndex <= responseText.length) {
-          setStreamedResponse(responseText.substring(0, charIndex));
-          charIndex++;
-          
-          // Update the streaming message in real-time
-          setMessages(prev => {
-            const newMessages = [...prev];
-            const lastIndex = newMessages.length - 1;
-            if (newMessages[lastIndex]?.streaming) {
-              newMessages[lastIndex] = {
-                ...newMessages[lastIndex],
-                text: responseText.substring(0, charIndex)
-              };
-            }
-            return newMessages;
-          });
-        } else {
-          clearInterval(streamInterval);
-          resolve(responseText);
-        }
-      }, 30); // Adjust speed as needed
-    });
+    return await fetchStreamingResponse(userMessage);
   };
+  
 
-  // In a real implementation, you would use the following function instead:
-
-  // Update the fetchStreamingResponse function in your ChatBot component
 
 const fetchStreamingResponse = async (userMessage) => {
     try {
-      // Get the auth token if available (for personalized responses)
-      const token = localStorage.getItem('access_token');
       
-      // Choose endpoint based on authentication status
-      const endpoint = token 
-        ? '/api/chat/protected'  // Use authenticated endpoint
-        : '/api/chat';           // Use public endpoint
       
+      const endpoint = CHATBOT_URL+'/chat-response';
+
       // Set up headers
       const headers = {
         'Content-Type': 'application/json',
       };
       
-      // Add auth token if available
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
       
       // Connect to the backend API
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({
+          message: [{ content: userMessage }]
+         }),
       });
       
       if (!response.ok) {
