@@ -95,9 +95,15 @@ export default function ChatBot() {
     return await fetchStreamingResponse(userMessage);
   };
   
-
-
-const fetchStreamingResponse = async (userMessage) => {
+  
+  const fetchStreamingResponse = async (userMessage) => {
+    
+    let sessionId = sessionStorage.getItem("chat_session_id");
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      sessionStorage.setItem("chat_session_id", sessionId);
+    }
+  
     try {
       
       
@@ -114,7 +120,8 @@ const fetchStreamingResponse = async (userMessage) => {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({
-          message: [{ content: userMessage }]
+          message: [{ content: userMessage }],
+          id: sessionId
          }),
       });
       
@@ -192,7 +199,7 @@ const fetchStreamingResponse = async (userMessage) => {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 z-50">
+    <div className="fixed bottom-14 left-4 z-50">
       {/* Chat button */}
       <button 
         onClick={toggleChat}
@@ -207,7 +214,7 @@ const fetchStreamingResponse = async (userMessage) => {
       {isOpen && (
         <div 
           className={`absolute bottom-16 left-0 bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col ${
-            isMinimized ? 'h-12 w-64' : 'h-126 w-108'  /*dimensions of the chatbot popup*/
+            isMinimized ? 'h-12 w-64' : 'h-126 w-100'  /*dimensions of the chatbot popup*/
           } transition-all duration-300`}
         >
           {/* Chat header */}
