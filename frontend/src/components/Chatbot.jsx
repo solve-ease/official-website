@@ -95,9 +95,15 @@ export default function ChatBot() {
     return await fetchStreamingResponse(userMessage);
   };
   
-
-
-const fetchStreamingResponse = async (userMessage) => {
+  
+  const fetchStreamingResponse = async (userMessage) => {
+    
+    let sessionId = sessionStorage.getItem("chat_session_id");
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      sessionStorage.setItem("chat_session_id", sessionId);
+    }
+  
     try {
       
       
@@ -114,7 +120,8 @@ const fetchStreamingResponse = async (userMessage) => {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({
-          message: [{ content: userMessage }]
+          message: [{ content: userMessage }],
+          id: sessionId
          }),
       });
       
