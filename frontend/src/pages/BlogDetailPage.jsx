@@ -23,6 +23,13 @@ import BlogComments from '../components/blog/BlogComments';
 import  Navbar from "../components/Navbar";
 import  Footer from "../components/Footer";
 
+// mardown parse 
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 
 const BlogDetailPage = () => {
   const { slug } = useParams();
@@ -201,9 +208,36 @@ const BlogDetailPage = () => {
                 variants={itemVariants}
                 className="bg-white rounded-lg shadow-md p-6 md:p-8 mb-8"
               >
-                <div className="prose prose-lg max-w-none">
+                {/* <div className="prose prose-lg max-w-none">
                   {parse(post.content)}
-                </div>
+                </div> */}
+                    <div className="prose prose-lg max-w-none">
+                      <ReactMarkdown
+                        rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                        components={{
+                          code({node, inline, className, children, ...props}) {
+                            const match = /language-(\w+)/.exec(className || '');
+                            return !inline && match ? (
+                              <SyntaxHighlighter
+                                style={tomorrow}
+                                language={match[1]}
+                                PreTag="div"
+                                {...props}
+                              >
+                                {String(children).replace(/\n$/, '')}
+                              </SyntaxHighlighter>
+                            ) : (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            );
+                          }
+                        }}
+                      >
+                        {post.content}
+                      </ReactMarkdown>
+                    </div>
+
               </motion.div>
               
               {/* Tags */}

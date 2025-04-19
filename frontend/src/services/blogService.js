@@ -15,7 +15,7 @@ const api = axios.create({
 });
 
 // Helper function to get auth token
-const getAuthToken = () => localStorage.getItem('token');
+const getAuthToken = () => localStorage.getItem('access_token');
 
 // Attach JWT token to request headers if available
 const authHeaders = () => {
