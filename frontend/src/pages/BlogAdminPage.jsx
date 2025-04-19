@@ -603,6 +603,9 @@ import { defaultKeymap } from '@codemirror/commands';
 import { markdown } from '@codemirror/lang-markdown';
 import { oneDark } from '@codemirror/theme-one-dark';
 
+
+
+
 const BlogAdminPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -626,42 +629,79 @@ const BlogAdminPage = () => {
   const [editorView, setEditorView] = useState(null);
   const [markdownPreview, setMarkdownPreview] = useState(false);
 
-  // Create editor ref
-  const editorRef = React.useRef(null);
+  
 
   // Initialize the Markdown editor
-  useEffect(() => {
-    if (!editorRef.current) return;
+  // useEffect(() => {
+  //   if (!editorRef.current) return;
 
-    const startState = EditorState.create({
-      doc: formData.content,
-      extensions: [
-        basicSetup,
-        keymap.of(defaultKeymap),
-        markdown(),
-        oneDark,
-        EditorView.updateListener.of(update => {
-          if (update.docChanged) {
-            setFormData(prev => ({ ...prev, content: update.state.doc.toString() }));
-          }
-        })
-      ]
-    });
+  //   const startState = EditorState.create({
+  //     doc: formData.content,
+  //     extensions: [
+  //       basicSetup,
+  //       keymap.of(defaultKeymap),
+  //       markdown(),
+  //       oneDark,
+  //       EditorView.updateListener.of(update => {
+  //         if (update.docChanged) {
+  //           setFormData(prev => ({ ...prev, content: update.state.doc.toString() }));
+  //         }
+  //       })
+  //     ]
+  //   });
 
-    const view = new EditorView({
-      state: startState,
-      parent: editorRef.current
-    });
+  //   const view = new EditorView({
+  //     state: startState,
+  //     parent: editorRef.current
+  //   });
 
-    setEditorView(view);
+  //   setEditorView(view);
 
-    return () => {
-      if (view) {
-        view.destroy();
-      }
-    };
-  }, [editorRef.current]);
+  //   return () => {
+  //     if (view) {
+  //       view.destroy();
+  //     }
+  //   };
+  // }, [editorRef.current]);
 
+  // Create editor ref
+const editorRef = React.useRef(null);
+
+useEffect(() => {
+  if (!editorRef.current) return;
+
+  const updateListener = EditorView.updateListener.of(update => {
+    if (update.docChanged) {
+      setFormData(prev => ({ ...prev, content: update.state.doc.toString() }));
+    }
+  });
+
+  const startState = EditorState.create({
+    doc: formData.content,
+    extensions: [
+      basicSetup,
+      keymap.of(defaultKeymap),
+      markdown(),
+      oneDark,
+      updateListener
+    ]
+  });
+
+  const view = new EditorView({
+    state: startState,
+    parent: editorRef.current
+  });
+
+  setEditorView(view);
+
+  return () => {
+    if (view) {
+      view.destroy();
+    }
+  };
+}, [editorRef.current]);
+
+ 
   // Update editor content when form data changes (e.g., when fetching a post)
   useEffect(() => {
     if (editorView && formData.content && !editorView.state.doc.toString()) {
