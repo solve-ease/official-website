@@ -9,6 +9,8 @@ from extensions import db
 from . import api_bp
 from uuid import UUID
 
+from services.email_service import send_newsletter_email
+
 
 # Add a new blog post
 @api_bp.route('/blog/posts', methods=['POST'])
@@ -55,6 +57,20 @@ def create_blog_post():
 
         db.session.add(post)
         db.session.commit()
+
+        # Send newsletter email if the post is published
+        if post.status == 'published':
+            subscribers = BlogSubscriber.query.filter_by(is_active=True).all()
+            email_list = [subscriber.email for subscriber in subscribers]
+            post_data = {
+                'title': post.title,
+                'slug': post.slug,
+                'content': post.content,
+                'featured_image': post.featured_image
+            }
+            send_newsletter_email(email_list, post_data)
+
+        
 
         return jsonify(post.to_dict()), 201
 
