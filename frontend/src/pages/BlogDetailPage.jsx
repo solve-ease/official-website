@@ -155,10 +155,15 @@ const BlogDetailPage = () => {
               </h1>
               
               <div className="flex flex-wrap items-center text-white gap-y-2 gap-x-6">
+              <div className='flex items-center'>
+                  <Heart size={16} className="mr-2" />
+                  <span>{post.viewsCount} views</span>
+                </div>
                 <div className="flex items-center">
                   <User size={16} className="mr-2" />
                   <span>{post.author.name}</span>
                 </div>
+
                 
                 <div className="flex items-center">
                   <Calendar size={16} className="mr-2" />
@@ -169,6 +174,7 @@ const BlogDetailPage = () => {
                   <Clock size={16} className="mr-2" />
                   <span>{post.readingTime} min read</span>
                 </div>
+                
               </div>
             </motion.div>
           </div>
