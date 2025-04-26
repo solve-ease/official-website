@@ -42,7 +42,7 @@ export const fetchBlogPosts = async ({
       params: { search, page, limit, tags: tagParam, sort },
     });
     
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching blog posts:', error);
