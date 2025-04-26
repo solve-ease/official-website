@@ -126,7 +126,9 @@ const BlogDetailPage = () => {
     <Navbar />
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with Featured Image */}
-      <div className="relative h-80 md:h-96 lg:h-[500px] overflow-hidden">
+      <div className="relative h-[420px] md:h-96 lg:h-[500px] overflow-hidden"
+        
+      >
         <LazyLoadImage
           // src={post.featuredImage}
           src="https://neilpatel.com/wp-content/uploads/2019/04/social-media-trends-2025-003.webp"

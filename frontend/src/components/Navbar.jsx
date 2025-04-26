@@ -23,7 +23,14 @@ const Navbar = () => {
     }
   }, [isDarkMode]);
 
-  const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleMenu = () => {
+    setIsOpen(!isOpen)
+    
+    // if (isOpen) {
+    //   document.getElementsByClassName('my-head')[0].classList.remove('bg-white/90 dark:bg-gray-900/90 shadow-md backdrop-blur-sm');
+    //   document.getElementsByClassName('my-head')[0].classList.add('bg-transparent');
+    // }
+  };
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   const navLinks = [
@@ -45,9 +52,11 @@ const Navbar = () => {
 
   return (
     <motion.header 
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/90 dark:bg-gray-900/90 shadow-md backdrop-blur-sm' : 'bg-transparent'
-      }`}
+      
+    className={`fixed my-head w-full z-50 transition-all duration-300 ${
+      scrolled || isOpen ? 'bg-white/90 dark:bg-gray-900/90 shadow-md backdrop-blur-sm' : 'bg-transparent'
+    }`}
+      
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
@@ -58,7 +67,9 @@ const Navbar = () => {
             <img src={Logo} alt="Solve-Ease Logo" className="h-10 w-auto" />
             <span className="ml-2 text-xl font-bold text-indigo-600 dark:text-indigo-400">Solve-Ease</span>
           </a>
-          <div className="flex md:hidden">
+          <div className="flex md:hidden"
+            style={{marginRight: '16px'}}
+          >
             <button
               type="button"
               className="ml-2 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none"
@@ -73,14 +84,14 @@ const Navbar = () => {
               onClick={toggleMenu}
               aria-label="Toggle menu"
             >
-              {isOpen ? <X /> : <Menu />}
+              {isOpen ? <X size={32} /> : <Menu size={32} />}
             </button>
           </div>
         </div>
 
         <div
           className={`${
-            isOpen ? 'flex flex-col mt-4' : 'hidden'
+            isOpen ? 'flex flex-col mt-4 ' : 'hidden'
           } md:flex md:mt-0 md:flex-row md:items-center`}
         >
           <ul className="md:flex md:space-x-8">
@@ -115,7 +126,7 @@ const Navbar = () => {
               onClick={toggleTheme}
               aria-label="Toggle theme"
             >
-              {isDarkMode ? <Sun /> : <Moon />}
+              {isDarkMode ? <Sun size={32} /> : <Moon size={32} />}
             </button>
           </div>
         </div>
