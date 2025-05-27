@@ -214,11 +214,7 @@ export default function ChatBot() {
       {isOpen && (
         <div 
           className={`absolute bottom-16 left-0 bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col ${
-<<<<<<< HEAD
             isMinimized ? 'h-12 w-64' : 'h-126 w-90'  /*dimensions of the chatbot popup*/
-=======
-            isMinimized ? 'h-12 w-64' : 'h-126 w-100'  /*dimensions of the chatbot popup*/
->>>>>>> 31f4e0dc4c8093a17997aef764a7d47c421ae65d
           } transition-all duration-300`}
         >
           {/* Chat header */}
