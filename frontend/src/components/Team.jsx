@@ -111,11 +111,12 @@ const Team = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="relative pb-[100%] bg-gray-200 dark:bg-gray-700">
+              <div className="relative pb-[100%] bg-none">
                 <img 
                   src={member.image || `/api/placeholder/300/300?text=${encodeURIComponent(member.name)}`} 
                   alt={`${member.name}, ${member.role} at Solve-Ease`}
                   className="absolute h-full w-full object-cover"
+                  style={{borderRadius:'50%'}}
                 />
               </div>
               <div className="p-6">

@@ -36,24 +36,24 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Home', href: '/' },
     {name : 'Blogs', href : '/blog'},
-    { name: 'Services', href: '#services' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'Achievements', href: '#achievements' },
-    { name: 'Team', href: '#team' },
-    { name: 'Contact', href: '#contact' },
+    // { name: 'Services', href: '#services' },
+    { name: 'Projects', href: '/#projects' },
+    { name: 'Achievements', href: '/#achievements' },
+    // { name: 'Team', href: '#team' },
+    { name: 'Contact', href: '/#contact' },
   ];
 
   const socialLinks = [
-    { icon: <Github size={20} />, href: 'https://github.com/solve-ease', ariaLabel: 'GitHub' },
+    // { icon: <Github size={20} />, href: 'https://github.com/solve-ease', ariaLabel: 'GitHub' },
     { icon: <Instagram size={20} />, href: 'https://www.instagram.com/solve__ease/', ariaLabel: 'Instagram' },
     { icon: <Linkedin size={20} />, href: 'https://www.linkedin.com/company/solve-ease/', ariaLabel: 'LinkedIn' },
-    { icon: <Twitter size={20} />, href: 'https://x.com/solve__ease/', ariaLabel: 'Twitter/X' },
+    // { icon: <Twitter size={20} />, href: 'https://x.com/solve__ease/', ariaLabel: 'Twitter/X' },
   ];
 
   return (
     <motion.header 
       
-    className={`fixed my-head w-full z-50 transition-all duration-300 ${
+    className={`fixed my-head w-[100%] z-50 transition-all duration-300 ${
       scrolled || isOpen ? 'bg-white/90 dark:bg-gray-900/90 shadow-md backdrop-blur-sm' : 'bg-transparent'
     }`}
       
@@ -61,7 +61,7 @@ const Navbar = () => {
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <nav className="container mx-auto px-4 py-4 md:flex md:justify-between md:items-center">
+      <nav className="container mx-auto px-6 py-4 md:flex md:justify-between md:items-center">
         <div className="flex items-center justify-between">
           <a href="#home" className="flex items-center">
             <img src={Logo} alt="Solve-Ease Logo" className="h-10 w-auto" />
