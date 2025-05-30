@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Send, X, MinusSquare } from 'lucide-react';
+import { MessageCircle, Send, X, MinusSquare, RotateCcw } from 'lucide-react';
 
-const CHATBOT_URL = import.meta.env.VITE_CHATBOT_URL
+const CHATBOT_URL = "https://solveease-rogue.tech/chat/stream";
 
 // Main ChatBot component
 export default function ChatBot() {
@@ -35,6 +35,16 @@ export default function ChatBot() {
   // Toggle minimize state
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
+  };
+
+  // Clear chat history and start new conversation
+  const clearChat = () => {
+    setMessages([
+      { id: 1, text: "Hi there! I'm your portfolio assistant. How can I help you today?", sender: "bot" }
+    ]);
+    // Clear thread ID to start a new conversation
+    sessionStorage.removeItem("chat_thread_id");
+    console.log("Chat cleared - new conversation will start");
   };
 
   // Send a message and handle streaming response
@@ -103,11 +113,14 @@ export default function ChatBot() {
       sessionId = crypto.randomUUID();
       sessionStorage.setItem("chat_session_id", sessionId);
     }
+
+    // Get existing thread ID if available, otherwise send empty string
+    let threadId = sessionStorage.getItem("chat_thread_id") || "";
   
     try {
       
       
-      const endpoint = CHATBOT_URL+'/chat-response';
+      const endpoint = CHATBOT_URL;
 
       // Set up headers
       const headers = {
@@ -120,8 +133,9 @@ export default function ChatBot() {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({
-          message: [{ content: userMessage }],
-          id: sessionId
+          message: userMessage,  // Send as string instead of array
+          id: sessionId,
+          thread_id: threadId  // Send thread_id (empty string if new conversation)
          }),
       });
       
@@ -144,7 +158,7 @@ export default function ChatBot() {
         const chunk = decoder.decode(value, { stream: true });
         
         // Process SSE format - each chunk might contain multiple events
-        const lines = chunk.split('\n\n');
+        const lines = chunk.split('\n');
         
         for (const line of lines) {
           if (line.startsWith('data: ')) {
@@ -152,8 +166,9 @@ export default function ChatBot() {
               const jsonStr = line.slice(6); // Remove 'data: ' prefix
               const data = JSON.parse(jsonStr);
               
-              if (data.text) {
-                accumulatedText += data.text;
+              // Handle different message types from your endpoint
+              if (data.type === 'chunk' && data.content) {
+                accumulatedText += data.content;
                 
                 // Update the streaming message in real-time
                 setMessages(prev => {
@@ -168,8 +183,25 @@ export default function ChatBot() {
                   return newMessages;
                 });
               }
+              // Handle start message - save thread_id for future requests
+              else if (data.type === 'start') {
+                console.log('Stream started for thread:', data.thread_id);
+                if (data.thread_id) {
+                  sessionStorage.setItem("chat_thread_id", data.thread_id);
+                }
+              }
+              // Handle end message (optional - you can do cleanup here)
+              else if (data.type === 'end') {
+                console.log('Stream ended. Full response:', data.full_response);
+                // Ensure thread_id is saved if provided in end message too
+                if (data.thread_id) {
+                  sessionStorage.setItem("chat_thread_id", data.thread_id);
+                }
+                // Optionally, you could use the full_response to ensure accuracy
+                accumulatedText = data.full_response || accumulatedText;
+              }
             } catch (e) {
-              console.error('Error parsing SSE data:', e);
+              console.error('Error parsing SSE data:', e, 'Line:', line);
             }
           }
         }
@@ -214,7 +246,7 @@ export default function ChatBot() {
       {isOpen && (
         <div 
           className={`absolute bottom-16 left-0 bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col ${
-            isMinimized ? 'h-12 w-64' : 'h-126 w-100'  /*dimensions of the chatbot popup*/
+            isMinimized ? 'h-12 w-64' : 'h-126 w-90'  /*dimensions of the chatbot popup*/
           } transition-all duration-300`}
         >
           {/* Chat header */}
@@ -224,6 +256,9 @@ export default function ChatBot() {
           >
             <h3 className="font-medium">Portfolio Assistant</h3>
             <div className="flex gap-2">
+              <button onClick={clearChat} className="hover:text-gray-300" aria-label="Clear chat" title="Start new conversation">
+                <RotateCcw size={18} />
+              </button>
               <button onClick={toggleMinimize} className="hover:text-gray-300" aria-label="Minimize chat">
                 <MinusSquare size={18} />
               </button>
