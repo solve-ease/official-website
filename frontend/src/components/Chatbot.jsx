@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Send, X, MinusSquare } from 'lucide-react';
+import { MessageCircle, Send, X, MinusSquare, RotateCcw } from 'lucide-react';
 
-const CHATBOT_URL = import.meta.env.VITE_CHATBOT_URL
+const CHATBOT_URL = "https://solveease-rogue.tech/chat/stream";
 
-// Main ChatBot component
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -14,6 +13,7 @@ export default function ChatBot() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamedResponse, setStreamedResponse] = useState("");
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null); // Add a ref for the input element
 
   // Auto scroll to bottom when new messages arrive
   const scrollToBottom = () => {
@@ -26,15 +26,39 @@ export default function ChatBot() {
     }
   }, [messages, isOpen, streamedResponse]);
 
+  // Focus on input when streaming stops
+  useEffect(() => {
+    if (!isStreaming && isOpen && !isMinimized) {
+      inputRef.current?.focus();
+    }
+  }, [isStreaming, isOpen, isMinimized]);
+
   // Toggle chat window
   const toggleChat = () => {
     setIsOpen(!isOpen);
     setIsMinimized(false);
+    if (!isOpen) {
+      // Focus input when opening chat
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
   };
 
   // Toggle minimize state
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
+    if (!isMinimized) {
+      // Focus input when un-minimizing
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  };
+
+  // Clear chat history and start new conversation
+  const clearChat = () => {
+    setMessages([
+      { id: 1, text: "Hi there! I'm your portfolio assistant. How can I help you today?", sender: "bot" }
+    ]);
+    sessionStorage.removeItem("chat_thread_id");
+    console.log("Chat cleared - new conversation will start");
   };
 
   // Send a message and handle streaming response
@@ -61,14 +85,11 @@ export default function ChatBot() {
         { id: prev.length + 1, text: "", sender: "bot", streaming: true }
       ]);
 
-      // Simulate streaming from a backend API (replace with actual fetch to your endpoint)
-      // In a real implementation, you'd use fetch with streaming API or a WebSocket
       const response = await streamResponse(userMessage);
       
       // When streaming is done, update the last message with the complete response
       setMessages(prev => {
         const newMessages = [...prev];
-        // Remove the streaming placeholder message
         const lastIndex = newMessages.length - 1;
         newMessages[lastIndex] = {
           ...newMessages[lastIndex],
@@ -78,7 +99,6 @@ export default function ChatBot() {
         return newMessages;
       });
     } catch (error) {
-      // Handle errors by adding an error message
       setMessages(prev => [
         ...prev,
         { id: prev.length + 1, text: "Sorry, I'm having trouble connecting. Please try again later.", sender: "bot" }
@@ -95,33 +115,29 @@ export default function ChatBot() {
     return await fetchStreamingResponse(userMessage);
   };
   
-  
   const fetchStreamingResponse = async (userMessage) => {
-    
     let sessionId = sessionStorage.getItem("chat_session_id");
     if (!sessionId) {
       sessionId = crypto.randomUUID();
       sessionStorage.setItem("chat_session_id", sessionId);
     }
+
+    let threadId = sessionStorage.getItem("chat_thread_id") || "";
   
     try {
-      
-      
-      const endpoint = CHATBOT_URL+'/chat-response';
+      const endpoint = CHATBOT_URL;
 
-      // Set up headers
       const headers = {
         'Content-Type': 'application/json',
       };
       
-      
-      // Connect to the backend API
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({
-          message: [{ content: userMessage }],
-          id: sessionId
+          message: userMessage,
+          id: sessionId,
+          thread_id: threadId
          }),
       });
       
@@ -130,7 +146,6 @@ export default function ChatBot() {
         throw new Error(`Network response was not ok: ${errorText}`);
       }
       
-      // Set up event source for streaming
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       
@@ -140,22 +155,18 @@ export default function ChatBot() {
         const { done, value } = await reader.read();
         if (done) break;
         
-        // Decode the chunk
         const chunk = decoder.decode(value, { stream: true });
-        
-        // Process SSE format - each chunk might contain multiple events
-        const lines = chunk.split('\n\n');
+        const lines = chunk.split('\n');
         
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             try {
-              const jsonStr = line.slice(6); // Remove 'data: ' prefix
+              const jsonStr = line.slice(6);
               const data = JSON.parse(jsonStr);
               
-              if (data.text) {
-                accumulatedText += data.text;
+              if (data.type === 'chunk' && data.content) {
+                accumulatedText += data.content;
                 
-                // Update the streaming message in real-time
                 setMessages(prev => {
                   const newMessages = [...prev];
                   const lastIndex = newMessages.length - 1;
@@ -168,8 +179,21 @@ export default function ChatBot() {
                   return newMessages;
                 });
               }
+              else if (data.type === 'start') {
+                console.log('Stream started for thread:', data.thread_id);
+                if (data.thread_id) {
+                  sessionStorage.setItem("chat_thread_id", data.thread_id);
+                }
+              }
+              else if (data.type === 'end') {
+                console.log('Stream ended. Full response:', data.full_response);
+                if (data.thread_id) {
+                  sessionStorage.setItem("chat_thread_id", data.thread_id);
+                }
+                accumulatedText = data.full_response || accumulatedText;
+              }
             } catch (e) {
-              console.error('Error parsing SSE data:', e);
+              console.error('Error parsing SSE data:', e, 'Line:', line);
             }
           }
         }
@@ -182,19 +206,17 @@ export default function ChatBot() {
     }
   };
 
-
-  // Modified color scheme based on the provided image
   const colors = {
-    primary: "#374151", // Dark gray/slate for primary button
-    secondary: "#F3F4F6", // Light gray for background
-    accent: "#0EA5E9", // Blue accent for highlights
+    primary: "#374151",
+    secondary: "#F3F4F6",
+    accent: "#0EA5E9",
     text: {
-      light: "#F9FAFB", // White text on dark backgrounds
-      dark: "#1F2937", // Dark text on light backgrounds
+      light: "#F9FAFB",
+      dark: "#1F2937",
     },
     background: {
-      light: "#FFFFFF", // White background
-      darker: "#F3F4F6", // Slightly darker background for contrast
+      light: "#FFFFFF",
+      darker: "#F3F4F6",
     }
   };
 
@@ -214,7 +236,7 @@ export default function ChatBot() {
       {isOpen && (
         <div 
           className={`absolute bottom-16 left-0 bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col ${
-            isMinimized ? 'h-12 w-64' : 'h-126 w-90'  /*dimensions of the chatbot popup*/
+            isMinimized ? 'h-12 w-64' : 'h-126 w-90'
           } transition-all duration-300`}
         >
           {/* Chat header */}
@@ -224,6 +246,9 @@ export default function ChatBot() {
           >
             <h3 className="font-medium">Portfolio Assistant</h3>
             <div className="flex gap-2">
+              <button onClick={clearChat} className="hover:text-gray-300" aria-label="Clear chat" title="Start new conversation">
+                <RotateCcw size={18} />
+              </button>
               <button onClick={toggleMinimize} className="hover:text-gray-300" aria-label="Minimize chat">
                 <MinusSquare size={18} />
               </button>
@@ -274,6 +299,7 @@ export default function ChatBot() {
           {!isMinimized && (
             <form onSubmit={handleSendMessage} className="border-t border-gray-200 p-3 flex">
               <input
+                ref={inputRef} // Add ref to input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
@@ -281,6 +307,7 @@ export default function ChatBot() {
                 className="flex-1 border border-gray-300 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 style={{ borderColor: colors.primary, outlineColor: colors.accent }}
                 disabled={isStreaming}
+                autoFocus // Auto-focus when rendered
               />
               <button 
                 type="submit"
