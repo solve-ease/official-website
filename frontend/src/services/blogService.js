@@ -15,7 +15,7 @@ const api = axios.create({
 });
 
 // Helper function to get auth token
-const getAuthToken = () => localStorage.getItem('token');
+const getAuthToken = () => localStorage.getItem('access_token');
 
 // Attach JWT token to request headers if available
 const authHeaders = () => {
@@ -42,7 +42,7 @@ export const fetchBlogPosts = async ({
       params: { search, page, limit, tags: tagParam, sort },
     });
     
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching blog posts:', error);
@@ -123,6 +123,7 @@ function normalizeBlogPostData(post) {
     publishedAt: post.published_at,
     createdAt: post.created_at,
     readingTime: post.reading_time,
+    viewsCount : post.view_count || 0,
     tags: post.tags || [],
     author: {
       id: post.author_id,

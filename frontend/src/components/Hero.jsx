@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Code, Lightbulb, Award } from 'lucide-react';
 // import HeroImage from '../assets/hero-image.svg';
-import HeroImage from '../assets/hero.jpg';
+import HeroImage from '../assets/hero.png';
 
 const Hero = () => {
   return (
@@ -10,15 +10,16 @@ const Hero = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center">
           <motion.div 
-            className="md:w-1/2 mb-10 md:mb-0"
+            className="md:w-1/2 mb-10 md:mb-0 md:ml-10"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
+            // style={{marginLeft :"2rem"}}
           >
             <span className="inline-block py-1 px-3 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 text-sm font-medium mb-4">
               Innovation Hub
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gray-900 dark:text-white mb-6">
+            <h1 className="text-4xl md:text-4xl lg:text-6xl font-bold leading-tight text-gray-900 dark:text-white mb-6">
               Where Innovation 
               <span className="text-indigo-600 dark:text-indigo-400"> Meets Impact</span>
             </h1>
@@ -54,7 +55,8 @@ const Hero = () => {
             <img 
               src={HeroImage} 
               alt="Innovative solutions visualization showing digital transformation" 
-              className="w-full h-auto rounded-lg shadow-lg"
+              className="w-auto h-auto rounded-lg md:mx-5 "
+              style={{ maxHeight: '400px' }}
             />
           </motion.div>
         </div>

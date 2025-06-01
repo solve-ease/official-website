@@ -126,7 +126,9 @@ const BlogDetailPage = () => {
     <Navbar />
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with Featured Image */}
-      <div className="relative h-80 md:h-96 lg:h-[500px] overflow-hidden">
+      <div className="relative h-[420px] md:h-96 lg:h-[500px] overflow-hidden"
+        
+      >
         <LazyLoadImage
           // src={post.featuredImage}
           src="https://neilpatel.com/wp-content/uploads/2019/04/social-media-trends-2025-003.webp"
@@ -155,10 +157,15 @@ const BlogDetailPage = () => {
               </h1>
               
               <div className="flex flex-wrap items-center text-white gap-y-2 gap-x-6">
+              <div className='flex items-center'>
+                  <Heart size={16} className="mr-2" />
+                  <span>{post.viewsCount} views</span>
+                </div>
                 <div className="flex items-center">
                   <User size={16} className="mr-2" />
                   <span>{post.author.name}</span>
                 </div>
+
                 
                 <div className="flex items-center">
                   <Calendar size={16} className="mr-2" />
@@ -169,6 +176,7 @@ const BlogDetailPage = () => {
                   <Clock size={16} className="mr-2" />
                   <span>{post.readingTime} min read</span>
                 </div>
+                
               </div>
             </motion.div>
           </div>

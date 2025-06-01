@@ -40,3 +40,18 @@
 .read-the-docs {
   color: #888;
 } */
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure containers don't exceed viewport */
+.container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
