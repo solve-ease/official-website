@@ -271,7 +271,6 @@ def send_newsletter_email(email_list, post_data):
                     <div style="padding: 20px; border: 1px solid #e5e7eb; border-top: none;">
                         <h2 style="font-size: 22px; color: #2c3e50; margin-bottom: 15px;">{title}</h2>
                         
-                        {f'<img src="{featured_image}" alt="{title}" style="width: 100%; max-height: 300px; object-fit: cover; margin-bottom: 20px; border-radius: 5px;">' if featured_image else ''}
                         
                         <p style="margin-bottom: 20px; color: #555555;">{excerpt}</p>
                         
