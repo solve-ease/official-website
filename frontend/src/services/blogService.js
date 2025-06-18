@@ -127,7 +127,7 @@ function normalizeBlogPostData(post) {
     tags: post.tags || [],
     author: {
       id: post.author_id,
-      name: post.author_name || `Author #${post.author_id}`,
+      name: post.author_name || `Adarsh Maurya`,
       avatar: post.author_avatar || adarshImg,
       bio: post.author_bio || "I'm an Entrepreneur, buildling solutions for world's pressing problems using latest tools and technology like Gen AI, Blockchain, etc.I love hackathons and working with bright minds towards building sustainable solutions and having fun with bugs in the code.",
       role: post.author_role || 'Technical Expert  ',
@@ -143,7 +143,9 @@ export const submitComment = async (postId, commentData) => {
   try {
     const response = await api.post(`/blog/posts/${postId}/comments`, commentData, {
       headers: authHeaders(),
+      
     });
+    console.log(commentData)
     return response.data;
   } catch (error) {
     console.error('Error submitting comment:', error);

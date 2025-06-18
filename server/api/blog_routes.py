@@ -221,12 +221,12 @@ def increment_post_view_count(post_id):
 
 
 @api_bp.route('/blog/posts/<string:post_id>/comments', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def submit_comment(post_id):
     """Submit a comment on a blog post."""
     try:
         data = request.get_json()
-        user_id = int(get_jwt_identity())  # Ensure user_id is an integer
+        user_id = 3 # Keeping it defualt for now, to Admin
 
         # Validate and convert post_id to UUID
         try:
@@ -247,8 +247,8 @@ def submit_comment(post_id):
             user_id=user_id,  # Ensure user_id is correctly formatted as an integer
             parent_id=parent_id,
             content=data['content'],
-            author_name=data.get('author_name'),
-            author_email=data.get('author_email')
+            author_name=data.get('name'),
+            author_email=data.get('email')
         )
 
         db.session.add(comment)

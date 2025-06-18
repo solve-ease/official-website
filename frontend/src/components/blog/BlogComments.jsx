@@ -122,10 +122,11 @@ const BlogComments = ({ postId }) => {
           <p className="text-center text-gray-600">No comments yet. Be the first to comment!</p>
         ) : (
           comments.map((commentItem) => (
+            console.log(commentItem),
             <motion.div key={commentItem.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center">
                 <User size={16} className="text-blue-600 mr-2" />
-                <h4 className="font-medium">{commentItem.name}</h4>
+                <h4 className="font-medium font-bold">{commentItem.author_name}</h4>
               </div>
               <p className="text-gray-700 mt-2">{commentItem.content}</p>
             </motion.div>
