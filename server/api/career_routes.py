@@ -5,7 +5,7 @@ import re
 import uuid
 from datetime import datetime
 from services.supabase_service import SupabaseService
-from security import require_api_key, rate_limit, validate_origin, check_honeypot, security_headers
+from security import require_api_key, validate_origin, check_honeypot, security_headers
 from . import api_bp
 
 def validate_email(email):
@@ -44,7 +44,6 @@ def validate_linkedin_url(url):
 
 @api_bp.route('/apply', methods=['POST'])
 @security_headers
-@rate_limit(max_requests=3, window_minutes=60)  # Max 3 applications per hour per IP
 @validate_origin
 @check_honeypot
 @require_api_key
@@ -159,7 +158,6 @@ def submit_career_application():
 
 @api_bp.route('/apply/<application_id>', methods=['GET'])
 @security_headers
-@rate_limit(max_requests=10, window_minutes=15)  # Max 10 lookups per 15 minutes per IP
 def get_career_application(application_id):
     """Get career application details by application ID (public info only)."""
     try:
