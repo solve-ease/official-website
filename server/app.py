@@ -3,7 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from config import Config
 from api import api_bp
-from extensions import db, jwt
+from extensions import db, jwt, init_supabase
 
 def create_app(config_class=Config):
     """
@@ -17,6 +17,7 @@ def create_app(config_class=Config):
     CORS(app, resources={r"/api/*": {"origins": app.config['ALLOWED_ORIGINS']}})
     db.init_app(app)
     jwt.init_app(app)
+    init_supabase(app)
     
     # Register blueprints
     app.register_blueprint(api_bp, url_prefix='/api')

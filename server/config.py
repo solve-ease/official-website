@@ -8,7 +8,9 @@ load_dotenv()
 
 class Config:
     """Base configuration class with common settings."""
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    API_KEY = os.environ.get('API_KEY')
+    
     ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:5173,https://solve-ease.vercel.app').split(',')
     
     # Supabase configuration
@@ -34,6 +36,10 @@ class Config:
 class DevelopmentConfig(Config):
     """Development configuration with debug enabled."""
     DEBUG = True
+    
+    # Development allows fallbacks for convenience
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-for-development-only')
+    API_KEY = os.environ.get('API_KEY', 'dev-api-key-for-development-only')
 
 class ProductionConfig(Config):
     """Production configuration with appropriate security settings."""
@@ -42,6 +48,15 @@ class ProductionConfig(Config):
     
     # Use stronger settings in production
     JWT_COOKIE_SECURE = True
+    
+    # Validate required environment variables exist
+    @classmethod
+    def validate(cls):
+        """Validate that required environment variables are set for production."""
+        if not os.environ.get('SECRET_KEY'):
+            raise RuntimeError("SECRET_KEY environment variable is required in production")
+        if not os.environ.get('API_KEY'):
+            raise RuntimeError("API_KEY environment variable is required in production")
     
 class TestingConfig(Config):
     """Testing configuration for automated tests."""
