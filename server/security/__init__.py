@@ -34,7 +34,7 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def rate_limit(max_requests=5, window_minutes=15):
+def rate_limit(max_requests=15, window_minutes=15):
     """
     Rate limiting decorator.
     Limits requests per IP address.
